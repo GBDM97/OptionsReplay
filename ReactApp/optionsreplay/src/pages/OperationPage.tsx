@@ -18,6 +18,19 @@ const OperationPage:React.FC<{index:number}> = ({index}) => {
     const names = indexToFileNames();
     const fileString1 = require(names.entry);
     const fileString2 = require(names.exit);
+
+    const formatPrice = (s:string) => {
+      return String(parseInt(s.trim().replace(/^0+/, '')) / 100);
+    };
+
+    const stringSearch = (fileString:string) => {
+      const linesArray = fileString.split('\n');
+      linesArray.forEach((line, index)=>{
+        if (index !== 0 || index < linesArray.length) {
+          
+        }
+      })
+    }
     
   }
 
