@@ -2,7 +2,7 @@ import re
 
 def formatPrice(s):
     if int(s) == 0:
-        return 0
+        return "0"
     return str(int(re.sub(r'^0+', '', s.strip()))/100)
         
 def run(fileName):

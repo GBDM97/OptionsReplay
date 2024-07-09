@@ -1,54 +1,76 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
-import '../App.css';
-import styled from 'styled-components';
-import data from '../data/data.json';
-import OperationsList from '../components/OperationsList';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import "../App.css";
+import styled from "styled-components";
+import data from "../data/data.json";
+import OperationsList from "../components/OperationsList";
 
 export type AssetInfo = {
-  [key: string]: string[]
-}
+  [key: string]: string[];
+};
 
-const OperationPage:React.FC<{index:number}> = ({index}) => {
-  const [listPayload,setListPayload] = useState<AssetInfo>({});
+const OperationPage: React.FC<{ index: number }> = ({ index }) => {
+  const [entryInfo, setEntryInfo] = useState<AssetInfo>({});
+  const [exitInfo, setExitInfo] = useState<AssetInfo>({});
+  const [selectedOperation, setSelectedOperation] = useState("");
 
   const indexToData = () => {
-    return {entry:data.D24062024,exit:data.D28062024}
-  }
+    return { entry: data.D24062024, exit: data.D28062024 };
+  };
 
-  const search = (search_string:string) => {
-    if(search_string === ''){setListPayload({});return;}
-    const selectedData = indexToData();
-    const fileString1 = selectedData.entry;
-    const fileString2 = selectedData.exit;
-
-    const formatPrice = (s:string) => {
-      return String(parseInt(s.trim().replace(/^0+/, '')) / 100);
-    };
-
-    const jsonSearch = (dateJson:{[key: string]: string[]}) => {
-      setListPayload({})
-      Object.entries(dateJson)
-      .filter(([current_asset]) => current_asset.includes(search_string) && current_asset.length > 8)
-      .forEach(([current_asset, prices]) => {
-        setListPayload(prevState => ({
-        ...prevState,
-        [current_asset]:prices
-        }));
-      }
-      );
-
+  const search = (search_string: string, isEntry: boolean) => {
+    if (search_string === "") {
+      setEntryInfo({});
+      return;
     }
-    jsonSearch(fileString1)
-    
-  }
+    const selectedData = indexToData();
+    const jsonInput1: AssetInfo = selectedData.entry;
+    const jsonInput2: AssetInfo = selectedData.exit;
+
+    const jsonSearch = (dateJson: { [key: string]: string[] }) => {
+      return Object.entries(dateJson).filter(
+        ([current_asset]) =>
+          current_asset.includes(search_string) && current_asset.length > 8
+      );
+    };
+    if (isEntry) {
+      setEntryInfo({});
+      jsonSearch(jsonInput1).forEach(([current_asset, prices]) => {
+        setEntryInfo((prevState) => ({
+          ...prevState,
+          [current_asset]: prices,
+        }));
+      });
+    } else {
+      setExitInfo({});
+      jsonSearch(jsonInput2).forEach(([current_asset, prices]) => {
+        setExitInfo((prevState) => ({
+          ...prevState,
+          [current_asset]: prices,
+        }));
+      });
+    }
+  };
+
+  useEffect(() => {
+    search(selectedOperation, false);
+  }, [selectedOperation]);
 
   return (
-    <div>
-        <input type='text' onChange={e => search(e.target.value)}/>
-        <OperationsList listPayload={listPayload}/>
-    </div>
+    <>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <div style={{ width: "50%" }}>
+          <input type="text" onChange={(e) => search(e.target.value, true)} />
+          <OperationsList
+            listPayload={entryInfo}
+            selectedOperation={selectedOperation}
+            setSelectedOperation={setSelectedOperation}
+          />
+        </div>
+        <div>{JSON.stringify(exitInfo)}</div>
+      </div>
+    </>
   );
-}
+};
 
 export default OperationPage;
