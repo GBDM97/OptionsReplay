@@ -3,3 +3,16 @@ html {
   color: white;
   margin: 20px;
 }
+
+.hover-effect {
+  border: 2px solid transparent;
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
+  padding: 10px;
+  display: inline-block;
+}
+
+.hover-effect:hover {
+  border-color: white;
+  cursor: pointer;
+}
