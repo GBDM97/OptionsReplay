@@ -1,45 +1,45 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 import '../App.css';
 import styled from 'styled-components';
 import data from '../data/data.json';
 import OperationsList from '../components/OperationsList';
 
+export type AssetInfo = {
+  [key: string]: string[]
+}
+
 const OperationPage:React.FC<{index:number}> = ({index}) => {
-  const [listPayload,setListPayload] = useState<Array<string>>([]);
+  const [listPayload,setListPayload] = useState<AssetInfo>({});
 
   const indexToData = () => {
-    if(index === 1){
-      return {entry:data.D24062024,exit:data.D28062024}
-    }
-    else return {entry:'file1',exit:'file2'}
+    return {entry:data.D24062024,exit:data.D28062024}
   }
 
-  const search = (selected_asset:string) => {
-    const names = indexToData();
-    const fileString1 = require(names.entry);
-    const fileString2 = require(names.exit);
+  const search = (search_string:string) => {
+    if(search_string === ''){setListPayload({});return;}
+    const selectedData = indexToData();
+    const fileString1 = selectedData.entry;
+    const fileString2 = selectedData.exit;
 
     const formatPrice = (s:string) => {
       return String(parseInt(s.trim().replace(/^0+/, '')) / 100);
     };
 
-    const stringSearch = (fileString:string) => {
-      let linesArray = fileString.split('\n');
-      linesArray.forEach((line, index)=>{
-        if (index !== 0 || index < linesArray.length) {
-          let current_asset = line.slice(12, 24).trim();
-          if (current_asset.includes(selected_asset) && current_asset.length > 8) {
-            return ('\n'+current_asset+' >>> '+
-              formatPrice(line.slice(56,69))+'|'+formatPrice(line.slice(69,82))+'|'+
-              formatPrice(line.slice(82,95))+'|'+formatPrice(line.slice(108,121)))
-          }
-        
-        }
-      })
-      setListPayload(linesArray)
+    const jsonSearch = (dateJson:{[key: string]: string[]}) => {
+      setListPayload({})
+      Object.entries(dateJson)
+      .filter(([current_asset]) => current_asset.includes(search_string) && current_asset.length > 8)
+      .forEach(([current_asset, prices]) => {
+        setListPayload(prevState => ({
+        ...prevState,
+        [current_asset]:prices
+        }));
+      }
+      );
+
     }
-    stringSearch(fileString1)
+    jsonSearch(fileString1)
     
   }
 
