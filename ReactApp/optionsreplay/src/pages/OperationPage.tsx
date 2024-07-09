@@ -42,13 +42,8 @@ const OperationPage: React.FC<{ index: number }> = ({ index }) => {
         }));
       });
     } else {
-      setExitInfo({});
-      jsonSearch(jsonInput2).forEach(([current_asset, prices]) => {
-        setExitInfo((prevState) => ({
-          ...prevState,
-          [current_asset]: prices,
-        }));
-      });
+      const res = jsonSearch(jsonInput2).slice(-1)[0];
+      setExitInfo(res ? { [res[0]]: res[1] } : {});
     }
   };
 
