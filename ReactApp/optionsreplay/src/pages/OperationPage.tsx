@@ -9,13 +9,17 @@ export type AssetInfo = {
   [key: string]: string[];
 };
 
-const OperationPage: React.FC<{ index: number }> = ({ index }) => {
+const OperationPage = () => {
+  const [dateIndex, setDateIndex] = useState<number>();
   const [entryInfo, setEntryInfo] = useState<AssetInfo>({});
   const [exitInfo, setExitInfo] = useState<AssetInfo>({});
-  const [selectedOperation, setSelectedOperation] = useState("");
 
   const indexToData = () => {
-    return { entry: data.D24062024, exit: data.D28062024 };
+    if (dateIndex === 1) {
+      return { entry: data.D24062024, exit: data.D28062024 };
+    } else {
+      return { entry: data.D24062024, exit: data.D28062024 };
+    }
   };
 
   const search = (search_string: string, isEntry: boolean) => {
@@ -28,9 +32,8 @@ const OperationPage: React.FC<{ index: number }> = ({ index }) => {
     const jsonInput2: AssetInfo = selectedData.exit;
 
     const jsonSearch = (dateJson: { [key: string]: string[] }) => {
-      return Object.entries(dateJson).filter(
-        ([current_asset]) =>
-          current_asset.includes(search_string) && current_asset.length > 8
+      return Object.entries(dateJson).filter(([current_asset]) =>
+        current_asset.includes(search_string)
       );
     };
     if (isEntry) {
@@ -38,7 +41,7 @@ const OperationPage: React.FC<{ index: number }> = ({ index }) => {
       jsonSearch(jsonInput1).forEach(([current_asset, prices]) => {
         setEntryInfo((prevState) => ({
           ...prevState,
-          [current_asset]: prices,
+          [current_asset]: [prices[0], prices[1]],
         }));
       });
     } else {
@@ -47,22 +50,17 @@ const OperationPage: React.FC<{ index: number }> = ({ index }) => {
     }
   };
 
-  useEffect(() => {
-    search(selectedOperation, false);
-  }, [selectedOperation]);
-
   return (
     <>
       <div style={{ display: "flex", flexDirection: "row" }}>
         <div style={{ width: "50%" }}>
+          <input type="checkbox" onClick={() => setDateIndex(1)} />
+          {"24 / 06 - 28 / 06 (FR W4)"}
+          <br />
+          <br />
           <input type="text" onChange={(e) => search(e.target.value, true)} />
-          <OperationsList
-            listPayload={entryInfo}
-            selectedOperation={selectedOperation}
-            setSelectedOperation={setSelectedOperation}
-          />
+          <OperationsList listPayload={entryInfo} />
         </div>
-        <div>{JSON.stringify(exitInfo)}</div>
       </div>
     </>
   );

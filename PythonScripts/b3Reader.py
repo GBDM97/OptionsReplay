@@ -13,8 +13,8 @@ def run(fileName):
             current_asset = d[12:24].strip()
             if i == 1620:
                 print
-            if i == 0 or i > len(linesArray)-2:
+            if i == 0 or i > len(linesArray)-2 or current_asset[-2] != 'W':
                 continue
-            output[current_asset] = [formatPrice(d[56:69]),formatPrice(d[69:82]),formatPrice(d[82:95]),
+            output[current_asset] = [formatPrice(d[188:201]),formatPrice(d[56:69]),formatPrice(d[69:82]),formatPrice(d[82:95]),
                                      formatPrice(d[108:121])]
         return output

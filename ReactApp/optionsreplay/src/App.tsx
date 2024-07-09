@@ -6,7 +6,7 @@ import OperationPage from "./pages/OperationPage";
 function App() {
   return (
     <>
-      <OperationPage index={1} />
+      <OperationPage />
     </>
   );
 }
