@@ -62,7 +62,7 @@ const OperationPage = () => {
 
     const getExitInfo = (current_asset: string) => {
       const exitInfo = jsonSearch(jsonInput2, "exact", current_asset);
-      return exitInfo && exitInfo[0] ? exitInfo[0][1][3] : "";
+      return exitInfo && exitInfo[0] ? exitInfo[0][1][3] : "0.01";
     };
 
     const getReverseOperation = (entryPrice: string, asset: string) => {
@@ -83,7 +83,7 @@ const OperationPage = () => {
         return [
           reverseAsset[0],
           reverseAsset[1][1],
-          reverseExit ? reverseExit[1][2] : "",
+          reverseExit ? reverseExit[1][2] : "0.01",
         ];
       } else {
         return [];
