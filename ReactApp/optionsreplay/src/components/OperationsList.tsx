@@ -43,6 +43,7 @@ const OperationsList: React.FC<{
         <TableHeaderCell />
         <TableHeaderCell>Strike</TableHeaderCell>
         <TableHeaderCell>Entry Open Price</TableHeaderCell>
+        <TableHeaderCell>Exit Min Price</TableHeaderCell>
       </TableHead>
       <tbody>
         {Object.entries(listPayload).map(([asset, prices]) => (

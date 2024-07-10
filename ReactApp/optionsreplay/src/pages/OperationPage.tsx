@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+import { useState } from "react";
 import "../App.css";
-import styled from "styled-components";
 import data from "../data/data.json";
 import OperationsList from "../components/OperationsList";
 
@@ -11,8 +9,7 @@ export type AssetInfo = {
 
 const OperationPage = () => {
   const [dateIndex, setDateIndex] = useState<number>();
-  const [entryInfo, setEntryInfo] = useState<AssetInfo>({});
-  const [exitInfo, setExitInfo] = useState<AssetInfo>({});
+  const [list, setList] = useState<AssetInfo>({});
 
   const indexToData = () => {
     if (dateIndex === 1) {
@@ -24,30 +21,37 @@ const OperationPage = () => {
 
   const search = (search_string: string, isEntry: boolean) => {
     if (search_string === "") {
-      setEntryInfo({});
+      setList({});
       return;
     }
     const selectedData = indexToData();
     const jsonInput1: AssetInfo = selectedData.entry;
     const jsonInput2: AssetInfo = selectedData.exit;
 
-    const jsonSearch = (dateJson: { [key: string]: string[] }) => {
+    const jsonSearch = (
+      dateJson: { [key: string]: string[] },
+      includes: boolean,
+      list_asset?: string
+    ) => {
       return Object.entries(dateJson).filter(([current_asset]) =>
-        current_asset.includes(search_string)
+        includes
+          ? current_asset.includes(search_string)
+          : current_asset === list_asset
       );
     };
-    if (isEntry) {
-      setEntryInfo({});
-      jsonSearch(jsonInput1).forEach(([current_asset, prices]) => {
-        setEntryInfo((prevState) => ({
-          ...prevState,
-          [current_asset]: [prices[0], prices[1]],
-        }));
-      });
-    } else {
-      const res = jsonSearch(jsonInput2).slice(-1)[0];
-      setExitInfo(res ? { [res[0]]: res[1] } : {});
-    }
+    setList({});
+    jsonSearch(jsonInput1, true).forEach(([current_asset, prices]) => {
+      const exitInfo = jsonSearch(jsonInput2, false, current_asset);
+      console.log(exitInfo);
+      setList((previous) => ({
+        ...previous,
+        [current_asset]: [
+          prices[0],
+          prices[1],
+          exitInfo && exitInfo[0] ? exitInfo[0][1][3] : "",
+        ],
+      }));
+    });
   };
 
   return (
@@ -59,7 +63,7 @@ const OperationPage = () => {
           <br />
           <br />
           <input type="text" onChange={(e) => search(e.target.value, true)} />
-          <OperationsList listPayload={entryInfo} />
+          <OperationsList listPayload={list} />
         </div>
       </div>
     </>
