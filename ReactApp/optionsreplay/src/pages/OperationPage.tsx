@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../App.css";
 import data from "../data/data.json";
 import OperationsList from "../components/OperationsList";
+import { getReverseOptionCode } from "../utils/getReverseOptionCode";
 
 export type AssetInfo = {
   [key: string]: string[];
@@ -30,25 +31,75 @@ const OperationPage = () => {
 
     const jsonSearch = (
       dateJson: { [key: string]: string[] },
-      includes: boolean,
-      list_asset?: string
+      searchType: string,
+      asset_to_search?: string
     ) => {
-      return Object.entries(dateJson).filter(([current_asset]) =>
-        includes
-          ? current_asset.includes(search_string)
-          : current_asset === list_asset
-      );
+      if (searchType === "seriesSearch" && asset_to_search) {
+        const optioncode = asset_to_search
+          .split("")
+          .reverse()
+          .join("")
+          .match(/[a-zA-Z]/g);
+        asset_to_search =
+          asset_to_search.slice(0, 4) +
+          getReverseOptionCode(optioncode ? optioncode[1] : "") +
+          asset_to_search.slice(-2);
+      }
+
+      return Object.entries(dateJson).filter(([current_asset]) => {
+        if (searchType === "includes") {
+          return current_asset.includes(search_string);
+        } else if (searchType === "exact") {
+          return current_asset === asset_to_search;
+        } else if (searchType === "seriesSearch" && asset_to_search) {
+          return (
+            current_asset.slice(-2) === asset_to_search.slice(-2) &&
+            current_asset.slice(0, 5) === asset_to_search.slice(0, 5)
+          );
+        }
+      });
     };
+
+    const getExitInfo = (current_asset: string) => {
+      const exitInfo = jsonSearch(jsonInput2, "exact", current_asset);
+      return exitInfo && exitInfo[0] ? exitInfo[0][1][3] : "";
+    };
+
+    const getReverseOperation = (entryPrice: string, asset: string) => {
+      let priceDiference = 1000;
+      let reverseAsset;
+      const seriesSearch = jsonSearch(jsonInput1, "seriesSearch", asset);
+      seriesSearch.forEach(([ticker, priceArray]) => {
+        const currentDifference = Math.abs(
+          Number(priceArray[1]) - Number(entryPrice)
+        );
+        if (currentDifference < priceDiference) {
+          priceDiference = currentDifference;
+          reverseAsset = [ticker, priceArray];
+        }
+      });
+      if (reverseAsset) {
+        const reverseExit = jsonSearch(jsonInput2, "exact", reverseAsset[0])[0];
+        return [
+          reverseAsset[0],
+          reverseAsset[1][1],
+          reverseExit ? reverseExit[1][2] : "",
+        ];
+      } else {
+        return [];
+      }
+    };
+
     setList({});
-    jsonSearch(jsonInput1, true).forEach(([current_asset, prices]) => {
-      const exitInfo = jsonSearch(jsonInput2, false, current_asset);
-      console.log(exitInfo);
+
+    jsonSearch(jsonInput1, "includes").forEach(([current_asset, prices]) => {
       setList((previous) => ({
         ...previous,
         [current_asset]: [
           prices[0],
           prices[1],
-          exitInfo && exitInfo[0] ? exitInfo[0][1][3] : "",
+          getExitInfo(current_asset),
+          ...getReverseOperation(prices[1], current_asset),
         ],
       }));
     });
@@ -57,7 +108,7 @@ const OperationPage = () => {
   return (
     <>
       <div style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ width: "50%" }}>
+        <div style={{ width: "100%" }}>
           <input type="checkbox" onClick={() => setDateIndex(1)} />
           {"24 / 06 - 28 / 06 (FR W4)"}
           <br />

@@ -44,6 +44,9 @@ const OperationsList: React.FC<{
         <TableHeaderCell>Strike</TableHeaderCell>
         <TableHeaderCell>Entry Open Price</TableHeaderCell>
         <TableHeaderCell>Exit Min Price</TableHeaderCell>
+        <TableHeaderCell>Reverse Asset</TableHeaderCell>
+        <TableHeaderCell>Reverse Entry Price</TableHeaderCell>
+        <TableHeaderCell>Reverse Exit Price</TableHeaderCell>
       </TableHead>
       <tbody>
         {Object.entries(listPayload).map(([asset, prices]) => (
