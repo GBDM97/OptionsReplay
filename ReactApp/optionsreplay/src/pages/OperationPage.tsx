@@ -9,14 +9,26 @@ export type AssetInfo = {
 };
 
 const OperationPage = () => {
-  const [dateIndex, setDateIndex] = useState<number>();
+  const [dateIndex, setDateIndex] = useState<number>(0);
   const [list, setList] = useState<AssetInfo>({});
 
   const indexToData = () => {
     if (dateIndex === 1) {
+      return { entry: data.D01072024, exit: data.D05072024 };
+    }
+    if (dateIndex === 2) {
       return { entry: data.D24062024, exit: data.D28062024 };
+    }
+    if (dateIndex === 3) {
+      return { entry: data.D17062024, exit: data.D21062024 };
+    }
+    if (dateIndex === 4) {
+      return { entry: data.D10062024, exit: data.D14062024 };
+    }
+    if (dateIndex === 5) {
+      return { entry: data.D03062024, exit: data.D07062024 };
     } else {
-      return { entry: data.D24062024, exit: data.D28062024 };
+      return;
     }
   };
 
@@ -27,15 +39,19 @@ const OperationPage = () => {
     }
     search_string = search_string.toUpperCase();
     const selectedData = indexToData();
+    if (!selectedData) {
+      return;
+    }
     const jsonInput1: AssetInfo = selectedData.entry;
     const jsonInput2: AssetInfo = selectedData.exit;
 
     const jsonSearch = (
       dateJson: { [key: string]: string[] },
       searchType: string,
-      asset_to_search?: string
+      asset_to_search?: string,
+      reverse?: boolean
     ) => {
-      if (searchType === "seriesSearch" && asset_to_search) {
+      if (searchType === "seriesSearch" && asset_to_search && reverse) {
         const optioncode = asset_to_search
           .split("")
           .reverse()
@@ -69,7 +85,7 @@ const OperationPage = () => {
     const getReverseOperation = (entryPrice: string, asset: string) => {
       let priceDiference = 1000;
       let reverseAsset;
-      const seriesSearch = jsonSearch(jsonInput1, "seriesSearch", asset);
+      const seriesSearch = jsonSearch(jsonInput1, "seriesSearch", asset, true);
       seriesSearch.forEach(([ticker, priceArray]) => {
         const currentDifference = Math.abs(
           Number(priceArray[1]) - Number(entryPrice)
@@ -93,7 +109,11 @@ const OperationPage = () => {
 
     setList({});
 
-    jsonSearch(jsonInput1, "includes").forEach(([current_asset, prices]) => {
+    const searchResult =
+      search_string[search_string.length - 2] === "W"
+        ? jsonSearch(jsonInput1, "seriesSearch", search_string, false)
+        : jsonSearch(jsonInput1, "includes");
+    searchResult.forEach(([current_asset, prices]) => {
       setList((previous) => ({
         ...previous,
         [current_asset]: [
