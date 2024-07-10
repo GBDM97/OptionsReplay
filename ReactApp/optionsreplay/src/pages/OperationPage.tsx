@@ -25,6 +25,7 @@ const OperationPage = () => {
       setList({});
       return;
     }
+    search_string = search_string.toUpperCase();
     const selectedData = indexToData();
     const jsonInput1: AssetInfo = selectedData.entry;
     const jsonInput2: AssetInfo = selectedData.exit;
@@ -111,6 +112,7 @@ const OperationPage = () => {
         <div style={{ width: "100%" }}>
           <input type="checkbox" onClick={() => setDateIndex(1)} />
           {"24 / 06 - 28 / 06 (FR W4)"}
+          <p>ABEV3 / VALE3 / GGBR4 / BOVA11</p>
           <br />
           <br />
           <input type="text" onChange={(e) => search(e.target.value, true)} />
