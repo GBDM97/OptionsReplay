@@ -44,9 +44,11 @@ const OperationsList: React.FC<{
         <TableHeaderCell>Strike</TableHeaderCell>
         <TableHeaderCell>Entry Open Price</TableHeaderCell>
         <TableHeaderCell>Exit Min Price</TableHeaderCell>
+        <TableHeaderCell>Result</TableHeaderCell>
         <TableHeaderCell>Reverse Asset</TableHeaderCell>
         <TableHeaderCell>Reverse Entry Price</TableHeaderCell>
         <TableHeaderCell>Reverse Exit Price</TableHeaderCell>
+        <TableHeaderCell>Reverse Result</TableHeaderCell>
       </TableHead>
       <tbody>
         {Object.entries(listPayload).map(([asset, prices]) => (
@@ -54,8 +56,33 @@ const OperationsList: React.FC<{
             <TableCell>
               <SelectableAssetItem asset={asset} />
             </TableCell>
-            {prices.map((p) => (
-              <TableCell>{p}</TableCell>
+            {prices.length === 6
+              ? prices.splice(
+                  3,
+                  0,
+                  String((Number(prices[2]) - Number(prices[1])).toFixed(2))
+                )
+              : null}
+            {prices.length === 7
+              ? prices.splice(
+                  7,
+                  0,
+                  String((Number(prices[6]) - Number(prices[5])).toFixed(2))
+                )
+              : null}
+            {prices.map((v, i) => (
+              <TableCell
+                style={{
+                  color:
+                    i === 3 || i === 7
+                      ? Number(v) < 0
+                        ? "red"
+                        : "lime"
+                      : "white",
+                }}
+              >
+                {v}
+              </TableCell>
             ))}
           </TableRow>
         ))}
