@@ -3,6 +3,7 @@ import "../App.css";
 import data from "../data/data.json";
 import OperationsList from "../components/OperationsList";
 import { getReverseOptionCode } from "../utils/getReverseOptionCode";
+import PeriodSelector from "../components/PeriodSelector";
 
 export type AssetInfo = {
   [key: string]: string[];
@@ -128,16 +129,37 @@ const OperationPage = () => {
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ width: "100%" }}>
-          <input type="checkbox" onClick={() => setDateIndex(1)} />
-          {"24 / 06 - 28 / 06 (FR W4)"}
-          <p>ABEV3 / VALE3 / GGBR4 / BOVA11</p>
-          <br />
-          <br />
-          <input type="text" onChange={(e) => search(e.target.value, true)} />
-          <OperationsList listPayload={list} />
+      <div style={{ width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <PeriodSelector
+            text1={"01 / 07 - 05 / 07 (GS W1)"}
+            text2={""}
+            click={() => setDateIndex(1)}
+          />
+          <PeriodSelector
+            text1={"24 / 06 - 28 / 06 (FR W4)"}
+            text2={"ABEV3 / VALE3 / GGBR4 / BOVA11"}
+            click={() => setDateIndex(2)}
+          />
+          <PeriodSelector
+            text1={"17 / 06 - 21 / 06 (FR W3 unavailable)"}
+            text2={""}
+            click={() => setDateIndex(3)}
+          />
+          <PeriodSelector
+            text1={"10 / 06 - 14 / 06 (FR W2)"}
+            text2={""}
+            click={() => setDateIndex(4)}
+          />
+          <PeriodSelector
+            text1={"03 / 06 - 07 / 06 (FR W1)"}
+            text2={""}
+            click={() => setDateIndex(5)}
+          />
         </div>
+
+        <input type="text" onChange={(e) => search(e.target.value, true)} />
+        <OperationsList listPayload={list} />
       </div>
     </>
   );
