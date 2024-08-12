@@ -4,6 +4,7 @@ import data from "../data/data.json";
 import OperationsList from "../components/OperationsList";
 import { getReverseOptionCode } from "../utils/getReverseOptionCode";
 import PeriodSelector from "../components/PeriodSelector";
+import SelectComponent from "../components/SelectComponent";
 
 export type AssetInfo = {
   [key: string]: string[];
@@ -156,6 +157,7 @@ const OperationPage = () => {
             text2={""}
             click={() => setDateIndex(5)}
           />
+          <SelectComponent handle={(e) => e} />
         </div>
 
         <input type="text" onChange={(e) => search(e.target.value, true)} />

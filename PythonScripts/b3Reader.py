@@ -5,9 +5,9 @@ def formatPrice(s):
         return "0"
     return str(int(re.sub(r'^0+', '', s.strip()))/100)
         
-def run(fileName):
+def getDataOfDate(dateString):
     output = {}
-    with open('PythonScripts//data//'+fileName+'.txt') as file:
+    with open('PythonScripts//data//D'+dateString+'.TXT') as file:
         linesArray = file.readlines()
         for i,d in enumerate(linesArray):
             current_asset = d[12:24].strip()
