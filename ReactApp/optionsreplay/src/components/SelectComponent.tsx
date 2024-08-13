@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import data from "../data/data.json";
 
 const SelectWrapper = styled.div`
   display: inline-block;
@@ -37,12 +36,13 @@ const SelectArrow = styled.div`
 `;
 
 const SelectComponent: React.FC<{
-  handle: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-}> = ({ handle }) => (
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  data: Array<string>;
+}> = ({ onChange, data }) => (
   <SelectWrapper>
-    <SelectBox onChange={handle}>
-      {Object.keys(data).map((e) => (
-        <option value={e}>{e}</option>
+    <SelectBox onChange={onChange}>
+      {data.map((e, i) => (
+        <option value={i}>{e}</option>
       ))}
     </SelectBox>
     <SelectArrow />

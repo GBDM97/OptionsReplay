@@ -1,12 +1,12 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import OperationPage from "./pages/OperationPage";
+import TrendingAssetsPage from "./pages/TrendingAssetsPage";
 
 function App() {
   return (
     <>
-      <OperationPage />
+      <TrendingAssetsPage />
     </>
   );
 }

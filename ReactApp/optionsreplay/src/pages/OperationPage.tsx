@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "../App.css";
-import data from "../data/data.json";
+import data from "../data/oldData.json";
 import OperationsList from "../components/OperationsList";
 import { getReverseOptionCode } from "../utils/getReverseOptionCode";
 import PeriodSelector from "../components/PeriodSelector";
@@ -157,7 +157,7 @@ const OperationPage = () => {
             text2={""}
             click={() => setDateIndex(5)}
           />
-          <SelectComponent handle={(e) => e} />
+          <SelectComponent data={[]} onChange={(e) => e} />
         </div>
 
         <input type="text" onChange={(e) => search(e.target.value, true)} />
