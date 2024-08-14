@@ -68,25 +68,35 @@ def applyAdditonalDataToObj():
     basic_period_obj_example['data']['resultAndReverse'] = []
 
     def findReverseAsset(input_asset, info_of_input_asset):
-        asset_series_to_find = input_asset[:4] + reverseOptionCodes.get(input_asset[4])
+        asset_series_to_find = input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + input_asset[-2:]
         least_difference_between_assets = 1000
-        output_asset
-        info_of_output_asset
-        for searched_asset, info_of_searched_asset in basic_period_obj_example['data']['end'].items():
-            difference_between_searched_and_input = info_of_searched_asset[1] - info_of_input_asset[1]
-            if asset_series_to_find in searched_asset and difference_between_searched_and_input < least_difference_between_assets:
+        output_asset = ""
+        for searched_asset, entry_info_of_searched_asset in basic_period_obj_example['data']['start'].items():
+            if output_asset and searched_asset[0:3] != input_asset[0:3]:
+                break
+            difference_between_searched_and_input = abs(float(entry_info_of_searched_asset[1]) - float(info_of_input_asset[1]))
+            if (asset_series_to_find[0:-2] in searched_asset and asset_series_to_find[-2:] in searched_asset and 
+            difference_between_searched_and_input < least_difference_between_assets):
                 least_difference_between_assets = difference_between_searched_and_input
                 output_asset = searched_asset
-                info_of_output_asset = info_of_searched_asset
-        return { output_asset: info_of_output_asset }
-
-
+                entry_price_of_output_asset = entry_info_of_searched_asset[2]
+        exit_price_of_output_asset = basic_period_obj_example['data']['end'][output_asset][2] if output_asset in basic_period_obj_example['data']['end'] else 0.01
+        return { output_asset: {'entry':float(entry_price_of_output_asset), 'exit':exit_price_of_output_asset}}
 
     for asset, entry_asset_info in basic_period_obj_example['data']['start'].items():
         exit_asset_info = basic_period_obj_example['data']['end'][asset]
-        operation_result = entry_asset_info[1]-exit_asset_info[3]
+        operation_result = float(entry_asset_info[1])-float(exit_asset_info[3])
         reverse_asset = findReverseAsset(asset,entry_asset_info)
-        basic_period_obj_example['data']['resultAndReverse'].append({asset: [operation_result,]})
+        reverse_asset_name = list(reverse_asset.keys())[0]
+        reverse_asset_entry = list(reverse_asset.values())[0]['entry']
+        reverse_asset_exit = list(reverse_asset.values())[0]['exit']
+        reverse_operation_result = reverse_asset_entry - reverse_asset_exit
+        basic_period_obj_example['data']['resultAndReverse'] = dict()
+        basic_period_obj_example['data']['resultAndReverse'][asset] = [operation_result,
+                                                                             reverse_asset_name, 
+                                                                             reverse_asset_entry, 
+                                                                             reverse_asset_exit,
+                                                                             reverse_operation_result]
 applyAdditonalDataToObj()
 # missing_data = getMissingData()
 # for i,v in enumerate(missing_data):
