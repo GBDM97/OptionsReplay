@@ -1,6 +1,7 @@
-import data from "../data/data.json";
+import period from "../data/data.json";
 import SelectComponent from "../components/SelectComponent";
 import styled from "styled-components";
+import SelectableAssetItem from "../components/SelectableAssetItem";
 
 const TrendingAssetsPage: React.FC<{}> = ({}) => {
   const Table = styled.table`
@@ -33,6 +34,8 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
     padding: 12px;
   `;
 
+  const periodInfo = period[0]; //period selector
+
   return (
     <Table>
       <TableHead>
@@ -46,7 +49,18 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
         <TableHeaderCell>Reverse Exit Price</TableHeaderCell>
         <TableHeaderCell>Reverse Result</TableHeaderCell>
       </TableHead>
-      <tbody></tbody>
+      <tbody>
+        {Object.entries(periodInfo.data).map(([asset, prices]) => (
+          <TableRow>
+            <TableCell>
+              <SelectableAssetItem asset={asset} />
+            </TableCell>
+            {prices.map((el: string | number) => (
+              <TableCell>{el}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </tbody>
     </Table>
   );
 };

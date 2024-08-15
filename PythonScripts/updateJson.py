@@ -4,6 +4,8 @@ import b3Reader
 import time
 import reverseOptionCodes
 
+#TODO FILTER FOR TRENDING ASSETS, I THINK IT CAN BE AT THE FRONTEND
+
 folder_files_names = [file.name.replace('.TXT','') for file in Path('PythonScripts//data').iterdir()]
 
 ordered_dates_arr = sorted([time.strptime(i[1:],"%d%m%Y") for i in folder_files_names],reverse=True)
@@ -24,7 +26,11 @@ def getMissingData():
     return dates_data_dicts
 
 def updateJsonOrderly(obj):
-    #TODO clean data of start and and to maintain just the complete version which will be show on frontend
+    def cleanObj(o):
+        o['data'] = o['data']['compiledInfo']
+        return o
+        
+    obj = cleanObj(obj)
     with open('ReactApp//optionsreplay//src//data//data.json') as file:
         current_json_data:list = json.loads(file.read()) 
     if len(current_json_data) != 0:
@@ -64,8 +70,8 @@ def buildPeriodObj(start_data:dict,end_data:dict):
     }
 
 def applyAdditonalDataToObj(basic_period_obj):
-    basic_period_obj['data']['resultAndReverse'] = []
-    basic_period_obj['data']['resultAndReverse'] = dict()
+    basic_period_obj['data']['compiledInfo'] = []
+    basic_period_obj['data']['compiledInfo'] = dict()
 
     def findReverseAsset(input_asset, info_of_input_asset):
         asset_series_to_find = input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + input_asset[-2:]
@@ -101,7 +107,7 @@ def applyAdditonalDataToObj(basic_period_obj):
             reverse_asset_entry = float(list(reverse_asset_info.values())[0]['entry'])
             reverse_asset_exit = float(list(reverse_asset_info.values())[0]['exit'])
             reverse_operation_result = reverse_asset_entry - reverse_asset_exit
-        basic_period_obj['data']['resultAndReverse'][asset] = [ strike,
+        basic_period_obj['data']['compiledInfo'][asset] = [ strike,
                                                                 entry_asset_open,
                                                                 exit_asset_min,
                                                                 operation_result,
