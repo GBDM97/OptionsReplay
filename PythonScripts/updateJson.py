@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import re
 import b3Reader
 import time
 import reverseOptionCodes
@@ -48,7 +47,7 @@ def buildPeriodObj(start_data:dict,end_data:dict):
         trending_asset = input("Enter trending asset for period "+period+":\n")
         trending_assets[trending_asset] = input(
             "Enter trending asset direction for period "+period+":\n")
-        if input("Press 'a' to add another one or any other key to continue: ") != "s":
+        if input("Press 'a' to add another one or any other key to continue: ") != "a":
             break
     return {
         "dates":{
@@ -63,15 +62,14 @@ def buildPeriodObj(start_data:dict,end_data:dict):
         "trendingAssets":trending_assets
     }
 
-def applyAdditonalDataToObj():
-    basic_period_obj_example = file_json_output[0]
-    basic_period_obj_example['data']['resultAndReverse'] = []
+def applyAdditonalDataToObj(basic_period_obj):
+    basic_period_obj['data']['resultAndReverse'] = []
 
     def findReverseAsset(input_asset, info_of_input_asset):
         asset_series_to_find = input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + input_asset[-2:]
         least_difference_between_assets = 1000
         output_asset = ""
-        for searched_asset, entry_info_of_searched_asset in basic_period_obj_example['data']['start'].items():
+        for searched_asset, entry_info_of_searched_asset in basic_period_obj['data']['start'].items():
             if output_asset and searched_asset[0:3] != input_asset[0:3]:
                 break
             difference_between_searched_and_input = abs(float(entry_info_of_searched_asset[1]) - float(info_of_input_asset[1]))
@@ -80,29 +78,40 @@ def applyAdditonalDataToObj():
                 least_difference_between_assets = difference_between_searched_and_input
                 output_asset = searched_asset
                 entry_price_of_output_asset = entry_info_of_searched_asset[2]
-        exit_price_of_output_asset = basic_period_obj_example['data']['end'][output_asset][2] if output_asset in basic_period_obj_example['data']['end'] else 0.01
-        return { output_asset: {'entry':float(entry_price_of_output_asset), 'exit':exit_price_of_output_asset}}
+        exit_price_of_output_asset = basic_period_obj['data']['end'][output_asset][2] if output_asset in basic_period_obj['data']['end'] else 0.01
+        if output_asset:
+            return { output_asset: {'entry':float(entry_price_of_output_asset), 'exit':exit_price_of_output_asset}}
+        else:
+            return {}
 
-    for asset, entry_asset_info in basic_period_obj_example['data']['start'].items():
-        exit_asset_info = basic_period_obj_example['data']['end'][asset]
-        operation_result = float(entry_asset_info[1])-float(exit_asset_info[3])
-        reverse_asset = findReverseAsset(asset,entry_asset_info)
-        reverse_asset_name = list(reverse_asset.keys())[0]
-        reverse_asset_entry = list(reverse_asset.values())[0]['entry']
-        reverse_asset_exit = list(reverse_asset.values())[0]['exit']
-        reverse_operation_result = reverse_asset_entry - reverse_asset_exit
-        basic_period_obj_example['data']['resultAndReverse'] = dict()
-        basic_period_obj_example['data']['resultAndReverse'][asset] = [operation_result,
-                                                                             reverse_asset_name, 
-                                                                             reverse_asset_entry, 
-                                                                             reverse_asset_exit,
-                                                                             reverse_operation_result]
-applyAdditonalDataToObj()
-# missing_data = getMissingData()
-# for i,v in enumerate(missing_data):
-#     if i % 2 == 0:
-#         basic_period_obj = buildPeriodObj(missing_data[i+1],v)
-#         complete_obj = applyAdditonalDataToObj(basic_period_obj)
-#         updateJsonOrderly(complete_obj)
-#     else:
-#         continue
+    for asset, entry_asset_info in basic_period_obj['data']['start'].items():
+        exit_asset_min = basic_period_obj['data']['end'][asset][3] if asset in basic_period_obj['data']['end'] else 0.01 
+        operation_result = float(entry_asset_info[1])-float(exit_asset_min)
+        reverse_asset_info = findReverseAsset(asset,entry_asset_info)
+        reverse_asset_name = ""
+        reverse_asset_entry = ""
+        reverse_asset_exit = ""
+        reverse_operation_result = ""
+        if reverse_asset_info:
+            reverse_asset_name = list(reverse_asset_info.keys())[0]
+            reverse_asset_entry = float(list(reverse_asset_info.values())[0]['entry'])
+            reverse_asset_exit = float(list(reverse_asset_info.values())[0]['exit'])
+            reverse_operation_result = reverse_asset_entry - reverse_asset_exit
+        basic_period_obj['data']['resultAndReverse'] = dict()
+        basic_period_obj['data']['resultAndReverse'][asset] = [operation_result,
+                                                                reverse_asset_name, 
+                                                                reverse_asset_entry, 
+                                                                reverse_asset_exit,
+                                                                reverse_operation_result]
+def run():
+    missing_data = getMissingData()
+    for i,v in enumerate(missing_data):
+        basic_period_obj = {}
+        if i % 2 == 0:
+            basic_period_obj = buildPeriodObj(missing_data[i+1].copy(),v.copy())
+            complete_obj = applyAdditonalDataToObj(basic_period_obj)
+            updateJsonOrderly(complete_obj)
+        else:
+            continue
+
+run()
