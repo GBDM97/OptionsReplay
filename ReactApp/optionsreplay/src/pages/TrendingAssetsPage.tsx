@@ -1,4 +1,4 @@
-import period from "../data/data.json";
+import periods from "../data/data.json";
 import SelectComponent from "../components/SelectComponent";
 import styled from "styled-components";
 import SelectableAssetItem from "../components/SelectableAssetItem";
@@ -34,8 +34,17 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
     padding: 12px;
   `;
 
-  const periodInfo = period[0]; //period selector
-
+  const dataExample = [
+    {
+      data: {
+        ABEVG110W4: [1, 2, 3, 4, 5, 6],
+        VALER120W5: [1, 2, 3, 4, 5, 6],
+        GGBRR670W3: [7, 6, 5, 4, 3, 2],
+      },
+      dates: "",
+      trendingAssets: { abev3: "up", ggbr4: "down" },
+    },
+  ];
   return (
     <Table>
       <TableHead>
@@ -50,16 +59,9 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
         <TableHeaderCell>Reverse Result</TableHeaderCell>
       </TableHead>
       <tbody>
-        {Object.entries(periodInfo.data).map(([asset, prices]) => (
-          <TableRow>
-            <TableCell>
-              <SelectableAssetItem asset={asset} />
-            </TableCell>
-            {prices.map((el: string | number) => (
-              <TableCell>{el}</TableCell>
-            ))}
-          </TableRow>
-        ))}
+        {periods.map((period) =>
+          Object.entries(period.data.trendingData).map((data) => <p>{data}</p>)
+        )}
       </tbody>
     </Table>
   );

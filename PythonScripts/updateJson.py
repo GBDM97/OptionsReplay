@@ -27,7 +27,8 @@ def getMissingData():
 
 def updateJsonOrderly(obj):
     def cleanObj(o):
-        o['data'] = o['data']['compiledInfo']
+        del o['data']['start']
+        del o['data']['end']
         return o
         
     obj = cleanObj(obj)
@@ -37,6 +38,7 @@ def updateJsonOrderly(obj):
         for i,v in enumerate(current_json_data):
             if time.strptime(obj['dates']['start'],"%d%m%Y") > time.strptime(v['dates']['start'],"%d%m%Y"):
                 current_json_data.insert(i,obj)
+                break
             if (time.strptime(obj['dates']['start'],"%d%m%Y") < time.strptime(v['dates']['start'],"%d%m%Y") 
             and len(current_json_data) == i+1):
                 current_json_data.insert(i+1,obj)
@@ -72,13 +74,21 @@ def buildPeriodObj(start_data:dict,end_data:dict):
 def applyAdditonalDataToObj(basic_period_obj):
     basic_period_obj['data']['compiledInfo'] = []
     basic_period_obj['data']['compiledInfo'] = dict()
+    basic_period_obj['data']['trendingData'] = dict()
+
+    def filterTrendingAssets(obj):
+        for trending_asset in obj['trendingAssets']:
+            for asset in obj['data']['compiledInfo']:
+                if asset[0:4] == trending_asset[0:4].upper():
+                    obj['data']['trendingData'][asset] = obj['data']['compiledInfo'][asset]
+        return obj
 
     def findReverseAsset(input_asset, info_of_input_asset):
         asset_series_to_find = input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + input_asset[-2:]
         least_difference_between_assets = 1000
         output_asset = ""
         for searched_asset, entry_info_of_searched_asset in basic_period_obj['data']['start'].items():
-            if output_asset and searched_asset[0:3] != input_asset[0:3]:
+            if output_asset and searched_asset[0:4] != input_asset[0:4]:
                 break
             difference_between_searched_and_input = abs(float(entry_info_of_searched_asset[1]) - float(info_of_input_asset[1]))
             if (asset_series_to_find[0:-2] in searched_asset and asset_series_to_find[-2:] in searched_asset and 
@@ -115,7 +125,7 @@ def applyAdditonalDataToObj(basic_period_obj):
                                                                 reverse_asset_entry, 
                                                                 reverse_asset_exit,
                                                                 reverse_operation_result]
-    return basic_period_obj
+    return filterTrendingAssets(basic_period_obj)
 
 def run():
     missing_data = getMissingData()
