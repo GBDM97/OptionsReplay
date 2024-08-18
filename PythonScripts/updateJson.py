@@ -50,10 +50,12 @@ def buildPeriodObj(start_data:dict,end_data:dict):
     start_date = list(start_data.keys())[0]
     end_date = list(end_data.keys())[0]
     period = start_date+" - "+end_date
-    metadata = input("Enter metadata for period "+period+":\n")
+    callCode = input("Enter call code for period "+period+":\n")
+    putCode = input("Enter put code for period "+period+":\n")
+    weekCode = input("Enter week code for period "+period+":\n")
     trending_assets = {}
     while True:
-        trending_asset = input("Enter trending asset for period "+period+":\n")
+        trending_asset = input("Enter trending asset for period "+period+":\n").upper()
         trending_assets[trending_asset] = input(
             "Enter trending asset direction for period "+period+":\n")
         if input("Press 'a' to add another one or any other key to continue: ") != "a":
@@ -67,7 +69,11 @@ def buildPeriodObj(start_data:dict,end_data:dict):
             "start":start_data.popitem()[1],
             "end":end_data.popitem()[1]
         },
-        "metaData":metadata,
+        "codes": {
+            "callCode":callCode.upper(), 
+            "putCode":putCode.upper(), 
+            "weekCode":weekCode.upper()
+        },
         "trendingAssets":trending_assets
     }
 
@@ -76,11 +82,13 @@ def applyAdditonalDataToObj(basic_period_obj):
     basic_period_obj['data']['trendingData'] = []
 
     def filterTrendingAssets(obj):
-        trending_data = basic_period_obj['data']['trendingData']
+        trending_data = obj['data']['trendingData']
         period = obj['dates']['start']+" - "+obj['dates']['end']
+        codes = obj['codes']
         for trending_asset in obj['trendingAssets']:
             for asset in obj['data']['compiledInfo']:
-                if asset[0:4] == trending_asset[0:4].upper():
+                if (asset[0:4] == trending_asset[0:4] and asset[-2:] == codes['weekCode'] and 
+                (asset[4:5] == codes['callCode'] or asset[4:5] == codes['putCode'])):
                     new_asset_list = [period, asset]
                     new_asset_list.extend(obj['data']['compiledInfo'][asset])
                     trending_data.append(new_asset_list)
@@ -120,14 +128,14 @@ def applyAdditonalDataToObj(basic_period_obj):
             reverse_asset_entry = float(list(reverse_asset_info.values())[0]['entry'])
             reverse_asset_exit = float(list(reverse_asset_info.values())[0]['exit'])
             reverse_operation_result = reverse_asset_entry - reverse_asset_exit
-        basic_period_obj['data']['compiledInfo'][asset] = [ strike,
-                                                                entry_asset_open,
-                                                                exit_asset_min,
-                                                                operation_result,
-                                                                reverse_asset_name, 
-                                                                reverse_asset_entry, 
-                                                                reverse_asset_exit,
-                                                                reverse_operation_result]
+        basic_period_obj['data']['compiledInfo'][asset] = [strike,
+                                                            entry_asset_open,
+                                                            exit_asset_min,
+                                                            operation_result,
+                                                            reverse_asset_name, 
+                                                            reverse_asset_entry, 
+                                                            reverse_asset_exit,
+                                                            reverse_operation_result]
     return filterTrendingAssets(basic_period_obj)
 
 def run():
