@@ -72,15 +72,18 @@ def buildPeriodObj(start_data:dict,end_data:dict):
     }
 
 def applyAdditonalDataToObj(basic_period_obj):
-    basic_period_obj['data']['compiledInfo'] = []
     basic_period_obj['data']['compiledInfo'] = dict()
-    basic_period_obj['data']['trendingData'] = dict()
+    basic_period_obj['data']['trendingData'] = []
 
     def filterTrendingAssets(obj):
+        trending_data = basic_period_obj['data']['trendingData']
+        period = obj['dates']['start']+" - "+obj['dates']['end']
         for trending_asset in obj['trendingAssets']:
             for asset in obj['data']['compiledInfo']:
                 if asset[0:4] == trending_asset[0:4].upper():
-                    obj['data']['trendingData'][asset] = obj['data']['compiledInfo'][asset]
+                    new_asset_list = [period, asset]
+                    new_asset_list.extend(obj['data']['compiledInfo'][asset])
+                    trending_data.append(new_asset_list)
         return obj
 
     def findReverseAsset(input_asset, info_of_input_asset):

@@ -34,21 +34,11 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
     padding: 12px;
   `;
 
-  const dataExample = [
-    {
-      data: {
-        ABEVG110W4: [1, 2, 3, 4, 5, 6],
-        VALER120W5: [1, 2, 3, 4, 5, 6],
-        GGBRR670W3: [7, 6, 5, 4, 3, 2],
-      },
-      dates: "",
-      trendingAssets: { abev3: "up", ggbr4: "down" },
-    },
-  ];
   return (
     <Table>
       <TableHead>
-        <TableHeaderCell />
+        <TableHeaderCell>Period</TableHeaderCell>
+        <TableHeaderCell>Asset</TableHeaderCell>
         <TableHeaderCell>Strike</TableHeaderCell>
         <TableHeaderCell>Entry Open Price</TableHeaderCell>
         <TableHeaderCell>Exit Min Price</TableHeaderCell>
@@ -59,9 +49,16 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
         <TableHeaderCell>Reverse Result</TableHeaderCell>
       </TableHead>
       <tbody>
-        {periods.map((period) =>
-          Object.entries(period.data.trendingData).map((data) => <p>{data}</p>)
-        )}
+        {periods
+          .map((v) => v.data.trendingData)
+          .flat()
+          .map((asset) => (
+            <TableRow>
+              {asset.map((assetElement: any) => (
+                <TableCell>{assetElement}</TableCell>
+              ))}
+            </TableRow>
+          ))}
       </tbody>
     </Table>
   );
