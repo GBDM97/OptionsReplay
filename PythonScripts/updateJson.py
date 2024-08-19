@@ -6,9 +6,9 @@ import reverseOptionCodes
 
 #TODO FILTER FOR TRENDING ASSETS, I THINK IT CAN BE AT THE FRONTEND
 
-folder_files_names = [file.name.replace('.TXT','') for file in Path('PythonScripts//data').iterdir()]
+folder_files_names = [file.name.replace('.TXT','').replace("COTAHIST_D","") for file in Path('PythonScripts//data').iterdir()]
 
-ordered_dates_arr = sorted([time.strptime(i[1:],"%d%m%Y") for i in folder_files_names],reverse=True)
+ordered_dates_arr = sorted([time.strptime(i,"%d%m%Y") for i in folder_files_names],reverse=True)
 arr_dates_to_string = [time.strftime("%d%m%Y",i) for i in ordered_dates_arr]
 data_folder_dates = arr_dates_to_string
 
