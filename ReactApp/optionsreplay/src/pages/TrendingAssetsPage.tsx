@@ -47,6 +47,7 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
         <TableHeaderCell>Reverse Entry Price</TableHeaderCell>
         <TableHeaderCell>Reverse Exit Price</TableHeaderCell>
         <TableHeaderCell>Reverse Result</TableHeaderCell>
+        <TableHeaderCell>Trend Direction</TableHeaderCell>
       </TableHead>
       <tbody>
         {periods

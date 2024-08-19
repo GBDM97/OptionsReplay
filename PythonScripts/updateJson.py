@@ -55,7 +55,7 @@ def buildPeriodObj(start_data:dict,end_data:dict):
     weekCode = input("Enter week code for period "+period+":\n").upper()
     trending_assets = {}
     while True:
-        trending_asset = input("Enter trending asset for period "+period+":\n").upper()[0,4]
+        trending_asset = input("Enter trending asset for period "+period+":\n").upper()[0:4]
         trending_assets[trending_asset] = input(
             "Enter trending asset direction for period "+period+":\n").upper()
         if input("Press 'a' to add another one or any other key to continue: ") != "a":
@@ -94,7 +94,7 @@ def applyAdditonalDataToObj(basic_period_obj):
                 (asset[4:5] == codes['callCode'] or asset[4:5] == codes['putCode'])):
                     new_asset_list = [period, asset]
                     new_asset_list.extend(obj['data']['compiledInfo'][asset])
-                    new_asset_list.extend(getTrendDirection(asset[0:4]))
+                    new_asset_list.append(getTrendDirection(asset[0:4]))
                     trending_data.append(new_asset_list)
         return obj
 
