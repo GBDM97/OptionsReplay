@@ -48,4 +48,4 @@ def get(code: str) -> str:
     elif code == "X":
         return "L"
     else:
-        return None  # Optional: Handle cases where the code doesn't match any of the above
+        return ''

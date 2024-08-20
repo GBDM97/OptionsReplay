@@ -57,7 +57,7 @@ def buildPeriodObj(start_data:dict,end_data:dict):
     while True:
         trending_asset = input("Enter trending asset for period "+period+":\n").upper()[0:4]
         trending_assets[trending_asset] = input(
-            "Enter trending asset direction for period "+period+":\n").upper()
+            "Direction of "+trending_asset+":\n").upper()
         if input("Press 'a' to add another one or any other key to continue: ") != "a":
             break
     return {
@@ -70,9 +70,9 @@ def buildPeriodObj(start_data:dict,end_data:dict):
             "end":end_data.popitem()[1]
         },
         "codes": {
-            "callCode":callCode, 
-            "putCode":putCode, 
-            "weekCode":weekCode
+            "call":callCode, 
+            "put":putCode, 
+            "week":weekCode
         },
         "trendingAssets":trending_assets
     }
@@ -90,8 +90,8 @@ def applyAdditonalDataToObj(basic_period_obj):
         codes = obj['codes']
         for trending_asset in obj['trendingAssets']:
             for asset in obj['data']['compiledInfo']:
-                if (asset[0:4] == trending_asset[0:4] and asset[-2:] == codes['weekCode'] and 
-                (asset[4:5] == codes['callCode'] or asset[4:5] == codes['putCode'])):
+                if (asset[0:4] == trending_asset[0:4] and (asset[-2:] == codes['week'] or codes['week'] == 'W3') and 
+                (asset[4:5] == codes['call'] or asset[4:5] == codes['put'])):
                     new_asset_list = [period, asset]
                     new_asset_list.extend(obj['data']['compiledInfo'][asset])
                     new_asset_list.append(getTrendDirection(asset[0:4]))
@@ -99,15 +99,23 @@ def applyAdditonalDataToObj(basic_period_obj):
         return obj
 
     def findReverseAsset(input_asset, info_of_input_asset):
-        asset_series_to_find = input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + input_asset[-2:]
+        if (input_asset[4] != basic_period_obj['codes']['call'] and 
+            input_asset[4] != basic_period_obj['codes']['put']):
+            return {}
+        asset_series_to_find = (input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + 
+                                input_asset[-2:] if len(input_asset) > 8 else input_asset[0:4] + 
+                                reverseOptionCodes.get(input_asset[4]))
         least_difference_between_assets = 1000
         output_asset = ""
         for searched_asset, entry_info_of_searched_asset in basic_period_obj['data']['start'].items():
-            if output_asset and searched_asset[0:4] != input_asset[0:4]:
+            if least_difference_between_assets == 0:
                 break
             difference_between_searched_and_input = abs(float(entry_info_of_searched_asset[1]) - float(info_of_input_asset[1]))
-            if (asset_series_to_find[0:-2] in searched_asset and asset_series_to_find[-2:] in searched_asset and 
-            difference_between_searched_and_input < least_difference_between_assets):
+            if ((len(asset_series_to_find) > 5 and asset_series_to_find[0:-2] in searched_asset 
+                 and asset_series_to_find[-2:] in searched_asset)
+                 or 
+                 (len(asset_series_to_find) < 6 and asset_series_to_find in searched_asset)
+                 and difference_between_searched_and_input < least_difference_between_assets):
                 least_difference_between_assets = difference_between_searched_and_input
                 output_asset = searched_asset
                 open_price_of_output_asset = entry_info_of_searched_asset[1]
@@ -118,6 +126,7 @@ def applyAdditonalDataToObj(basic_period_obj):
             return {}
    
     for asset, entry_asset_info in basic_period_obj['data']['start'].items():
+        print(asset)
         exit_asset_min = basic_period_obj['data']['end'][asset][3] if asset in basic_period_obj['data']['end'] else 0.01 
         strike = entry_asset_info[0]
         entry_asset_open = entry_asset_info[1]
