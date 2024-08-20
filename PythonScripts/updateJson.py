@@ -90,8 +90,8 @@ def applyAdditonalDataToObj(basic_period_obj):
         codes = obj['codes']
         for trending_asset in obj['trendingAssets']:
             for asset in obj['data']['compiledInfo']:
-                if (asset[0:4] == trending_asset[0:4] and (asset[-2:] == codes['week'] or codes['week'] == 'W3') and 
-                (asset[4:5] == codes['call'] or asset[4:5] == codes['put'])):
+                if (asset[0:4] == trending_asset[0:4] and (asset[-2:] == codes['week'] or (codes['week'] == 'W3' 
+                and asset[-2] != 'W')) and (asset[4:5] == codes['call'] or asset[4:5] == codes['put'])):
                     new_asset_list = [period, asset]
                     new_asset_list.extend(obj['data']['compiledInfo'][asset])
                     new_asset_list.append(getTrendDirection(asset[0:4]))
@@ -114,8 +114,10 @@ def applyAdditonalDataToObj(basic_period_obj):
             if ((len(asset_series_to_find) > 5 and asset_series_to_find[0:-2] in searched_asset 
                  and asset_series_to_find[-2:] in searched_asset)
                  or 
-                 (len(asset_series_to_find) < 6 and asset_series_to_find in searched_asset)
-                 and difference_between_searched_and_input < least_difference_between_assets):
+                (len(asset_series_to_find) < 6 and asset_series_to_find in searched_asset and 
+                 searched_asset[-2] != 'W') and difference_between_searched_and_input < 
+                 least_difference_between_assets):
+                
                 least_difference_between_assets = difference_between_searched_and_input
                 output_asset = searched_asset
                 open_price_of_output_asset = entry_info_of_searched_asset[1]
