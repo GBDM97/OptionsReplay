@@ -7,7 +7,7 @@ def formatPrice(s):
         
 def getBasicData(dateString):
     output = {}
-    with open('PythonScripts//data//D'+dateString+'.TXT') as file:
+    with open('PythonScripts//data//COTAHIST_D'+dateString+'.TXT') as file:
         linesArray = file.readlines()
         for i,d in enumerate(linesArray):
             current_asset = d[12:24].strip()
