@@ -1,8 +1,11 @@
+from datetime import datetime, timedelta
 import json
 from pathlib import Path
 import b3Reader
 import time
 import reverseOptionCodes
+import pandas as pd
+import numpy as np
 
 #TODO FILTER FOR TRENDING ASSETS, I THINK IT CAN BE AT THE FRONTEND
 
@@ -46,10 +49,54 @@ def updateJsonOrderly(obj):
     with open('ReactApp//optionsreplay//src//data//data.json','w') as fileHandle:
         json.dump(current_json_data or [obj], fileHandle, indent=2)
 
+def verifySheet(start_data:dict,end_data:dict):
+    def getSheetTrendingAssets(index):
+        trending_assets_dict = dict()
+        column_names_list = df.columns.tolist()
+        line_arr = df.iloc[index].values[1:]
+        for i,v in enumerate(line_arr):
+            if i == 16:
+                break
+            if isinstance(v, str):
+                trending_assets_dict[column_names_list[i+1][:4]] = v
+        return trending_assets_dict
+
+    start_date = list(start_data.keys())[0]
+    end_date = list(end_data.keys())[0]
+    target_period = datetime.strptime(start_date,"%d%m%Y") - timedelta(days=1)
+    df = pd.read_excel('PythonScripts\\xlsx\\TrendingAssetsData.xlsx')
+    def toDatetime(date):
+        return pd.Timestamp(date).to_pydatetime()
+    sundays_array = [toDatetime(i) for i in df['SUNDAYS'].values]
+    if not target_period in sundays_array:
+        return
+    
+    period_index = sundays_array.index(target_period)
+    return {
+        "dates":{
+            "start":start_date,
+            "end":end_date
+        },
+        "data":{
+            "start":start_data.popitem()[1],
+            "end":end_data.popitem()[1]
+        },
+        "codes": {
+            "call":df['CALL'][period_index], 
+            "put":df['PUT'][period_index], 
+            "week":df['WEEK'][period_index]
+        },
+        "trendingAssets":getSheetTrendingAssets(period_index)
+    }
+
+
 def buildPeriodObj(start_data:dict,end_data:dict):
     start_date = list(start_data.keys())[0]
     end_date = list(end_data.keys())[0]
     period = start_date+" - "+end_date
+    sheet_data = verifySheet(start_data,end_data)
+    if sheet_data:
+        return sheet_data
     callCode = input("Enter call code for period "+period+":\n").upper()
     putCode = input("Enter put code for period "+period+":\n").upper()
     weekCode = input("Enter week code for period "+period+":\n").upper()
@@ -111,12 +158,15 @@ def applyAdditonalDataToObj(basic_period_obj):
             if least_difference_between_assets == 0:
                 break
             difference_between_searched_and_input = abs(float(entry_info_of_searched_asset[1]) - float(info_of_input_asset[1]))
+            if input_asset == 'MGLUQ180W1':
+                print
             if ((len(asset_series_to_find) > 5 and asset_series_to_find[0:-2] in searched_asset 
-                 and asset_series_to_find[-2:] in searched_asset)
+                 and asset_series_to_find[-2:] in searched_asset and difference_between_searched_and_input < 
+                 least_difference_between_assets)
                  or 
                 (len(asset_series_to_find) < 6 and asset_series_to_find in searched_asset and 
-                 searched_asset[-2] != 'W') and difference_between_searched_and_input < 
-                 least_difference_between_assets):
+                 searched_asset[-2] != 'W' and difference_between_searched_and_input < 
+                 least_difference_between_assets)):
                 
                 least_difference_between_assets = difference_between_searched_and_input
                 output_asset = searched_asset
@@ -128,7 +178,6 @@ def applyAdditonalDataToObj(basic_period_obj):
             return {}
    
     for asset, entry_asset_info in basic_period_obj['data']['start'].items():
-        print(asset)
         exit_asset_min = basic_period_obj['data']['end'][asset][3] if asset in basic_period_obj['data']['end'] else 0.01 
         strike = entry_asset_info[0]
         entry_asset_open = entry_asset_info[1]
@@ -156,6 +205,7 @@ def applyAdditonalDataToObj(basic_period_obj):
 def run():
     missing_data = getMissingData()
     for i,v in enumerate(missing_data):
+        print(i)
         basic_period_obj = {}
         if i % 2 == 0:
             basic_period_obj = buildPeriodObj(missing_data[i+1].copy(),v.copy())
