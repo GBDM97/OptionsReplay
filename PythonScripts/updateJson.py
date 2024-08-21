@@ -179,6 +179,7 @@ def applyAdditonalDataToObj(basic_period_obj):
    
     for asset, entry_asset_info in basic_period_obj['data']['start'].items():
         exit_asset_min = basic_period_obj['data']['end'][asset][3] if asset in basic_period_obj['data']['end'] else 0.01 
+        underlying_asset_price = underlyingInfo(asset)
         strike = entry_asset_info[0]
         entry_asset_open = entry_asset_info[1]
         operation_result = float(entry_asset_info[1])-float(exit_asset_min)

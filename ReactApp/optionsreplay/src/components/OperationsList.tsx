@@ -54,7 +54,7 @@ const OperationsList: React.FC<{
         {Object.entries(listPayload).map(([asset, prices]) => (
           <TableRow>
             <TableCell>
-              <SelectableAssetItem asset={asset} />
+              <SelectableAssetItem asset={asset} onClick={() => console} />
             </TableCell>
             {prices.length === 6
               ? prices.splice(

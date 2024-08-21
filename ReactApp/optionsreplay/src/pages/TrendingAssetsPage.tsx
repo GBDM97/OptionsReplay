@@ -1,7 +1,8 @@
-import periods from "../data/data.json";
+import periods from "../data/trendingData.json";
 import SelectComponent from "../components/SelectComponent";
 import styled from "styled-components";
 import SelectableAssetItem from "../components/SelectableAssetItem";
+import { useState } from "react";
 
 const TrendingAssetsPage: React.FC<{}> = ({}) => {
   const Table = styled.table`
@@ -34,34 +35,51 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
     padding: 12px;
   `;
 
+  const [periodsArray, setPeriods] = useState<any>(periods);
+
+  const [filteredAssets, setFiltered] = useState<Array<any>>([]);
+
+  const filterAsset = (i: Array<any>) => {
+    setFiltered((p) => [...p, i]);
+  };
+
   return (
-    <Table>
-      <TableHead>
-        <TableHeaderCell>Period</TableHeaderCell>
-        <TableHeaderCell>Asset</TableHeaderCell>
-        <TableHeaderCell>Strike</TableHeaderCell>
-        <TableHeaderCell>Entry Open Price</TableHeaderCell>
-        <TableHeaderCell>Exit Min Price</TableHeaderCell>
-        <TableHeaderCell>Result</TableHeaderCell>
-        <TableHeaderCell>Reverse Asset</TableHeaderCell>
-        <TableHeaderCell>Reverse Entry Price</TableHeaderCell>
-        <TableHeaderCell>Reverse Exit Price</TableHeaderCell>
-        <TableHeaderCell>Reverse Result</TableHeaderCell>
-        <TableHeaderCell>Trend Direction</TableHeaderCell>
-      </TableHead>
-      <tbody>
-        {periods
-          .map((v) => v.data.trendingData)
-          .flat()
-          .map((asset) => (
+    <>
+      <Table>
+        <TableHead>
+          <TableHeaderCell>Period</TableHeaderCell>
+          <TableHeaderCell>Asset</TableHeaderCell>
+          <TableHeaderCell>Strike</TableHeaderCell>
+          <TableHeaderCell>Entry Open Price</TableHeaderCell>
+          <TableHeaderCell>Exit Min Price</TableHeaderCell>
+          <TableHeaderCell>Result</TableHeaderCell>
+          <TableHeaderCell>Reverse Asset</TableHeaderCell>
+          <TableHeaderCell>Reverse Entry Price</TableHeaderCell>
+          <TableHeaderCell>Reverse Exit Price</TableHeaderCell>
+          <TableHeaderCell>Reverse Result</TableHeaderCell>
+          <TableHeaderCell>Trend Direction</TableHeaderCell>
+          <button onClick={() => setPeriods(filteredAssets)}>Filter</button>
+        </TableHead>
+        <tbody>
+          {periodsArray.map((asset: any) => (
             <TableRow>
-              {asset.map((assetElement: any) => (
-                <TableCell>{assetElement}</TableCell>
-              ))}
+              {asset.map((assetElement: any, index: number) =>
+                index === 1 ? (
+                  <TableCell>
+                    <SelectableAssetItem
+                      onClick={() => filterAsset(asset)}
+                      asset={assetElement}
+                    />
+                  </TableCell>
+                ) : (
+                  <TableCell>{assetElement}</TableCell>
+                )
+              )}
             </TableRow>
           ))}
-      </tbody>
-    </Table>
+        </tbody>
+      </Table>
+    </>
   );
 };
 
