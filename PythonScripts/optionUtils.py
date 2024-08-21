@@ -1,4 +1,4 @@
-def get(code: str) -> str:
+def getReverseCode(code: str) -> str:
     if code == "A":
         return "M"
     elif code == "B":
@@ -49,3 +49,31 @@ def get(code: str) -> str:
         return "L"
     else:
         return ''
+    
+def isCall(code):
+    if code == "A":
+        return True
+    elif code == "B":
+        return True
+    elif code == "C":
+        return True
+    elif code == "D":
+        return True
+    elif code == "E":
+        return True
+    elif code == "F":
+        return True
+    elif code == "G":
+        return True
+    elif code == "H":
+        return True
+    elif code == "I":
+        return True
+    elif code == "J":
+        return True
+    elif code == "K":
+        return True
+    elif code == "L":
+        return True
+    else:
+        return False

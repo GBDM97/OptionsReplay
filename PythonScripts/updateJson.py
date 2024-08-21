@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import b3Reader
 import time
-import reverseOptionCodes
+import optionUtils
 import pandas as pd
 import numpy as np
 
@@ -149,9 +149,9 @@ def applyAdditonalDataToObj(basic_period_obj):
         if (input_asset[4] != basic_period_obj['codes']['call'] and 
             input_asset[4] != basic_period_obj['codes']['put']):
             return {}
-        asset_series_to_find = (input_asset[:4] + reverseOptionCodes.get(input_asset[4]) + 
+        asset_series_to_find = (input_asset[:4] + optionUtils.getReverseCode(input_asset[4]) + 
                                 input_asset[-2:] if len(input_asset) > 8 else input_asset[0:4] + 
-                                reverseOptionCodes.get(input_asset[4]))
+                                optionUtils.getReverseCode(input_asset[4]))
         least_difference_between_assets = 1000
         output_asset = ""
         for searched_asset, entry_info_of_searched_asset in basic_period_obj['data']['start'].items():
