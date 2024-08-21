@@ -176,13 +176,24 @@ def applyAdditonalDataToObj(basic_period_obj):
             return { output_asset: {'entry':float(open_price_of_output_asset), 'exit':max_price_of_output_asset}}
         else:
             return {}
+        
+    def underlyingInfo(a):
+        search_for_asset = ''
+        weekly_assets = ['ABEV3','B3SA3','BBAS3','BBDC4','BBSE3','BOVA11','GGBR4','HAPV3','ITUB4','MGLU3','NTCO3','PETR4','PRIO3','SMAL11','SUZB3','VALE3']
+        for i in weekly_assets:
+            if i == a:
+                search_for_asset = a
+                break
+        return basic_period_obj['data']['start'][search_for_asset]
+
    
     for asset, entry_asset_info in basic_period_obj['data']['start'].items():
         exit_asset_min = basic_period_obj['data']['end'][asset][3] if asset in basic_period_obj['data']['end'] else 0.01 
-        underlying_asset_price = underlyingInfo(asset)
+        underlying_asset_price = underlyingInfo(asset)[1]
         strike = entry_asset_info[0]
+        percentage_strike_per_price = str(float(strike) / float(underlying_asset_price))
         entry_asset_open = entry_asset_info[1]
-        operation_result = float(entry_asset_info[1])-float(exit_asset_min)
+        operation_result = str(float(entry_asset_info[1])-float(exit_asset_min))
         reverse_asset_info = findReverseAsset(asset,entry_asset_info)
         reverse_asset_name = ""
         reverse_asset_entry = ""
@@ -190,10 +201,12 @@ def applyAdditonalDataToObj(basic_period_obj):
         reverse_operation_result = ""
         if reverse_asset_info:
             reverse_asset_name = list(reverse_asset_info.keys())[0]
-            reverse_asset_entry = float(list(reverse_asset_info.values())[0]['entry'])
-            reverse_asset_exit = float(list(reverse_asset_info.values())[0]['exit'])
-            reverse_operation_result = reverse_asset_entry - reverse_asset_exit
-        basic_period_obj['data']['compiledInfo'][asset] = [strike,
+            reverse_asset_entry = str(float(list(reverse_asset_info.values())[0]['entry']))
+            reverse_asset_exit = str(float(list(reverse_asset_info.values())[0]['exit']))
+            reverse_operation_result = str(reverse_asset_entry - reverse_asset_exit)
+        basic_period_obj['data']['compiledInfo'][asset] = [underlying_asset_price,
+                                                            strike,
+                                                            percentage_strike_per_price,
                                                             entry_asset_open,
                                                             exit_asset_min,
                                                             operation_result,
