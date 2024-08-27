@@ -51,8 +51,8 @@ const TrendingAssetsPage: React.FC<{}> = ({}) => {
           <TableHeaderCell>Asset</TableHeaderCell>
           <TableHeaderCell>Strike per Underlying Price</TableHeaderCell>
           <TableHeaderCell>Entry Open Price</TableHeaderCell>
+          <TableHeaderCell>Exit Price</TableHeaderCell>
           <TableHeaderCell>Result</TableHeaderCell>
-          <TableHeaderCell>Reverse Result</TableHeaderCell>
           <TableHeaderCell>Trend Direction</TableHeaderCell>
           <button onClick={() => setPeriods(filteredAssets)}>Filter</button>
         </TableHead>

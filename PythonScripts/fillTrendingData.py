@@ -9,17 +9,15 @@ def applyFilter(data):
     #initial format received:
     #Period - Asset - Underlying Price - Strike - Strike per Underlying Price - Entry Open Price - Exit Min Price - Result - Reverse Asset - Reverse Entry Price - Reverse Exit Price - Reverse Result - Trend Direction
     for i,v in enumerate(data):
+          data[i].pop(11)
           data[i].pop(10)
           data[i].pop(9)
           data[i].pop(8)
-          data[i].pop(6)
+          data[i][7] = str(float(data[i][7])*-1)
           data[i].pop(3)
           data[i].pop(2)
-          if (((data[i][-1] == 'UP' and optionUtils.isCall(data[i][1][4])) or
-               (data[i][-1] == 'DN' and not optionUtils.isCall(data[i][1][4]))) or
-               (data[i][4] == '0.0') or #result
-               (not data[i][5]) or #reverse result
-               (float(data[i][4]) + float(data[i][5]) < -0.1)): #result comparison
+          if (((data[i][-1] == 'UP' and not optionUtils.isCall(data[i][1][4])) or
+               (data[i][-1] == 'DN' and optionUtils.isCall(data[i][1][4]))) ): #result comparison
             data[i]=[]
             continue
     data = [array for array in data if array]
