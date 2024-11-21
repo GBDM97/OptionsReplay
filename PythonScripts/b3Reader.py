@@ -14,7 +14,7 @@ def getRawData(dateString, selected_asset, series):
         linesArray = file.readlines()
         for i,d in enumerate(linesArray):
             current_asset = d[12:24].strip()
-            if ((i == 0 or i >= len(linesArray)-2 or current_asset[-1:] == 'F') or (not(current_asset in selected_asset) and 
+            if ((i == 0 or i >= len(linesArray)-2 or current_asset[-1:] == 'F' or current_asset[-1:] == 'E') or (not(current_asset in selected_asset) and 
             not((current_asset[0:5] == selected_asset[0:4] + series) and len(current_asset) > 5))):
                 continue
             output[current_asset] = [formatPrice(d[188:201]),formatPrice(d[56:69]),formatPrice(d[69:82]),formatPrice(d[82:95]),
