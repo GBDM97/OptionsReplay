@@ -77,3 +77,13 @@ def isCall(code):
         return True
     else:
         return False
+    
+def monthToOptionCodes(month):#returns [currentCallCode,currentPutCode]
+    if month == 11:
+        return ['K','W']
+    else:
+        return ['C','O']
+    
+def getDfAnalysisDateSpan(month):#start date inclusive, end date exclusive
+    if month == 11:
+        return ['04102024','16112024']
