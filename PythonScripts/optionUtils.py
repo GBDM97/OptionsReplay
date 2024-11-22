@@ -86,4 +86,4 @@ def monthToOptionCodes(month):#returns [currentCallCode,currentPutCode]
     
 def getDfAnalysisDateSpan(month):#start date inclusive, end date exclusive
     if month == 11:
-        return ['04102024','16112024']
+        return ['25102024','16112024']

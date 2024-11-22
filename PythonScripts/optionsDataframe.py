@@ -24,7 +24,7 @@ def get(input_asset, month, side): #generates dataframe for graph according to s
                     asset_price = 0
                 inner_arr.append(float(asset_price))
             data.append(inner_arr)
-    chart.create(pd.DataFrame(data, columns=columns, index=rows))
+    chart.create(pd.DataFrame(data, columns=columns, index=rows), month)
     # toExcel.write(data, rows, columns)
 
 
@@ -45,6 +45,6 @@ def getAllPeriodOptionCodes(data:dict):
     output_array = []
     for i in data.values():
         output_array.extend(i.keys())
-    return list(set(output_array))
+    return sorted(list(set(output_array)))
 
-get('ABEV3',11,'CALL')
+get('ABEV3',11,'PUT')
