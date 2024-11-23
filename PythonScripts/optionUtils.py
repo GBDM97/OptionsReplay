@@ -1,89 +1,87 @@
+import json
+
+selectedAssets = ['ABEV3','B3SA3','BBAS3','BBDC4','BBSE3','BOVA11','BRKM5','ELET6','EMBR3','GGBR4','HAPV3','ITSA4','ITUB4','KLBN11','MGLU3','NTCO3','PCAR3','PETR4','PRIO3','SANB11','SMAL11','SUZB3','TAEE11','USIM5','VALE3']
+
 def getReverseCode(code: str) -> str:
-    if code == "A":
-        return "M"
-    elif code == "B":
-        return "N"
-    elif code == "C":
-        return "O"
-    elif code == "D":
-        return "P"
-    elif code == "E":
-        return "Q"
-    elif code == "F":
-        return "R"
-    elif code == "G":
-        return "S"
-    elif code == "H":
-        return "T"
-    elif code == "I":
-        return "U"
-    elif code == "J":
-        return "V"
-    elif code == "K":
-        return "W"
-    elif code == "L":
-        return "X"
-    elif code == "M":
-        return "A"
-    elif code == "N":
-        return "B"
-    elif code == "O":
-        return "C"
-    elif code == "P":
-        return "D"
-    elif code == "Q":
-        return "E"
-    elif code == "R":
-        return "F"
-    elif code == "S":
-        return "G"
-    elif code == "T":
-        return "H"
-    elif code == "U":
-        return "I"
-    elif code == "V":
-        return "J"
-    elif code == "W":
-        return "K"
-    elif code == "X":
-        return "L"
-    else:
-        return ''
-    
+    reverse_mapping = {
+        "A": "M", "B": "N", "C": "O", "D": "P", "E": "Q", "F": "R", 
+        "G": "S", "H": "T", "I": "U", "J": "V", "K": "W", "L": "X",
+        "M": "A", "N": "B", "O": "C", "P": "D", "Q": "E", "R": "F", 
+        "S": "G", "T": "H", "U": "I", "V": "J", "W": "K", "X": "L"
+    }
+    return reverse_mapping.get(code, '')
+
 def isCall(code):
-    if code == "A":
-        return True
-    elif code == "B":
-        return True
-    elif code == "C":
-        return True
-    elif code == "D":
-        return True
-    elif code == "E":
-        return True
-    elif code == "F":
-        return True
-    elif code == "G":
-        return True
-    elif code == "H":
-        return True
-    elif code == "I":
-        return True
-    elif code == "J":
-        return True
-    elif code == "K":
-        return True
-    elif code == "L":
-        return True
-    else:
-        return False
+    return code in "ABCDEFGHIJKL"
     
-def monthToOptionCodes(month):#returns [currentCallCode,currentPutCode]
-    if month == 11:
-        return ['K','W']
-    else:
-        return ['C','O']
+def toMonth(code):
+    month_mapping = {
+        "A": 1, "M": 1,
+        "B": 2, "N": 2,
+        "C": 3, "O": 3,
+        "D": 4, "P": 4,
+        "E": 5, "Q": 5,
+        "F": 6, "R": 6,
+        "G": 7, "S": 7,
+        "H": 8, "T": 8,
+        "I": 9, "U": 9,
+        "J": 10, "V": 10,
+        "K": 11, "W": 11,
+        "L": 12, "X": 12
+    }
+    return month_mapping.get(code, '')
+
     
-def getDfAnalysisDateSpan(month):#start date inclusive, end date exclusive
-    if month == 11:
-        return ['25102024','16112024']
+def optionSeries():#returns [currentCallCode,currentPutCode]
+    return {
+        7:['G','S'],
+        8:['H','T'],
+        9:['I','U'],
+        10:['J','V'],
+        11:['K','W'],
+    }
+    
+def getAnalysisSpans():#start date inclusive, end date exclusive
+    return {
+        7:['01072024','27072024'],
+        8:['22072024','31082024'],
+        9:['19082024','28092024'],
+        10:['23092024','26102024'],
+        11:['21102024','16112024'],
+    }
+
+def exportToReact(data):
+    with open('ReactApp//optionsreplay//src//data//chart.json','w') as fileHandle:
+        json_string = json.dumps(data, indent=2)
+        fileHandle.write(json_string)
+        print('Data Exported!')
+
+def getUnderlyingAsset(opt):
+    mapping = {
+        'ABEV': 'ABEV3',
+        'B3SA': 'B3SA3',
+        'BBAS': 'BBAS3',
+        'BBDC': 'BBDC4',
+        'BBSE': 'BBSE3',
+        'BOVA': 'BOVA11',
+        'BRKM': 'BRKM5',
+        'ELET': 'ELET6',
+        'EMBR': 'EMBR3',
+        'GGBR': 'GGBR4',
+        'HAPV': 'HAPV3',
+        'ITSA': 'ITSA4',
+        'ITUB': 'ITUB4',
+        'KLBN': 'KLBN11',
+        'MGLU': 'MGLU3',
+        'NTCO': 'NTCO3',
+        'PCAR': 'PCAR3',
+        'PETR': 'PETR4',
+        'PRIO': 'PRIO3',
+        'SANB': 'SANB11',
+        'SMAL': 'SMAL11',
+        'SUZB': 'SUZB3',
+        'TAEE': 'TAEE11',
+        'USIM': 'USIM5',
+        'VALE': 'VALE3'
+    }
+    return mapping.get(opt[:4], None)
