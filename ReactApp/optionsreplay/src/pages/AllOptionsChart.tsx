@@ -1,78 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
+import { fetchData } from '../utils/fetchData';
 
 // Define types for the data structure
-interface LineData {
-  category: string;
+
+type ChartData = {
+  name: string;
+  undelyingAsset: string;
   x: string[];
   y: number[];
-  name: string;
-  type: 'scatter';
-  mode: 'lines+markers';
-  marker: { color: string };
-}
+  side: 'CALL' | 'PUT';
+  month: number;
+  week: string;
+  type: 'scatter' | 'line' | 'bar';
+  mode: 'lines+markers' | 'lines' | 'markers';
+  strike: number | null;
+}[];
 
 const AllOptionsChart: React.FC = () => {
   // Example data with two lines per category
-  const data: LineData[] = [
-    // Category A Lines
-    {
-      category: 'A',
-      x: ['2023-01-01', '2023-01-02', '2023-01-03'],
-      y: [10, 15, 20],
-      name: 'Line A1',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: { color: 'blue' }
-    },
-    {
-      category: 'A',
-      x: ['2023-01-01', '2023-01-02', '2023-01-03'],
-      y: [5, 10, 15],
-      name: 'Line A2',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: { color: 'lightblue' }
-    },
-    // Category B Lines
-    {
-      category: 'B',
-      x: ['2023-01-01', '2023-01-02', '2023-01-03'],
-      y: [20, 25, 30],
-      name: 'Line B1',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: { color: 'red' }
-    },
-    {
-      category: 'B',
-      x: ['2023-01-01', '2023-01-02', '2023-01-03'],
-      y: [15, 20, 25],
-      name: 'Line B2',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: { color: 'pink' }
-    },
-    // Category C Lines
-    {
-      category: 'C',
-      x: ['2023-01-01', '2023-01-02', '2023-01-03'],
-      y: [30, 35, 40],
-      name: 'Line C1',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: { color: 'green' }
-    },
-    {
-      category: 'C',
-      x: ['2023-01-01', '2023-01-02', '2023-01-03'],
-      y: [25, 30, 35],
-      name: 'Line C2',
-      type: 'scatter',
-      mode: 'lines+markers',
-      marker: { color: 'lightgreen' }
-    }
-  ];
+  const [data, setData] = useState<[]>([]);
+
+  const getData = async () => {
+    const d = await fetchData();
+    setData(d);
+  };
 
   // State for visible lines
   const [visibleLines, setVisibleLines] = useState<Record<string, boolean>>({
@@ -89,8 +41,9 @@ const AllOptionsChart: React.FC = () => {
     }));
   };
 
-  // Filter data based on visibleLines state
-  const filteredData = data.filter(line => visibleLines[line.category]);
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <div style={{ backgroundColor: 'orange', height: '100vh' }}>
@@ -108,17 +61,17 @@ const AllOptionsChart: React.FC = () => {
         ))}
       </div>
       <Plot
-        data={filteredData}
+        data={data}
         layout={{
           paper_bgcolor: 'black',
           plot_bgcolor: 'black',
           font: { color: 'gray' },
           xaxis: {
-            title: 'Price',
+            title: 'Date OHLC',
             showgrid: false,
             range: ['2023-01-01', '2023-01-02']
           },
-          yaxis: { title: 'Date OHLC', showgrid: false, range: [10, 25] }
+          yaxis: { title: 'Price', showgrid: false, range: [10, 25] }
         }}
         style={{ width: '100%', height: '100%' }} // Expand to full width and height
         useResizeHandler

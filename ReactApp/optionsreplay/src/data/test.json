@@ -1,73 +1,26 @@
-{
-  "CodProduto": 29,
-  "NumAgencia": "4148",
-  "Sistema": 1,
-  "NumAgenciaProposta": "",
-  "DvAgenciaProposta": "9",
-  "NumProposta": "7431612000037-6",
-  "CodOrigem": "1",
-  "NomProponente": "FRANCISCO FERREIRA",
-  "NomSocial": "",
-  "Email": "ghiancarlo.morelli@caixavidaeprevidencia.com.br",
-  "CpfCnpj": "42710018802",
-  "DthNascimento": "07/07/1975",
-  "VlrVenda": 40,
-  "VlrPremioTotal": 40,
-  "CodCanal": 7,
-  "DiaCobranca": 0,
-  "DthProposta": "20/08/2024",
-  "NomProduto": "Microsseguro Amparo",
-  "ProcessoSusep": "15414.617335/2020-29",
-  "ProcessoSusepCap": "15414.900036/2019-19",
-  "PEP": "-",
-  "DesOrigemRecurso": "-",
-  "DesProduto": "Bilhete de Seguro",
-  "DesFormaPagto": "Boleto Banc\u00E1rio",
-  "Periodicidade": "Anual",
-  "Ramo": "1381",
-  "RazaoSocialSeguradora": "CAIXA VIDA E PREVID\u00CANCIA S/A",
-  "CnpjSeguradora": "03.730.204/0001-76",
-  "SusepSeguradora": "0442-1",
-  "MatriculaDV": "000000143447",
-  "NomCorretor": "CAIXA Seguridade Corretagem e Administra\u00E7\u00E3o de Seguros S.A.",
-  "CnpjCorretor": "03.730.204/0001-76",
-  "SusepCorretor": "202108058",
-  "Vigencia": "-",
-  "NumSorteio": "-",
-  "ApoliceIndividual": "000000",
-  "Endereco": {
-    "Cep": "70233-090",
-    "DesEndereco": "QUADRA SQS 203, n\u00BA 0, BLOCO I AP",
-    "Bairro": "ASA SUL",
-    "Cidade": "BRASILIA",
-    "EnderecoUf": "DF"
+[
+  {
+    "name": "ABEVG102",
+    "undelyingAsset": "ABEV3",
+    "x": [5, 6, 7, 8],
+    "y": [10, 11, 12, 13],
+    "side": "CALL",
+    "month": 7,
+    "week": "W3",
+    "type": "scatter",
+    "mode": "lines+markers",
+    "strike": null
   },
-  "Beneficiarios": [
-    {
-      "NomBeneficiario": "beneficiario1",
-      "DesParentesco": "Conjuge",
-      "Parentesco": "",
-      "NumPorcentagem": "100",
-      "Cpf": "00000000001",
-      "Sexo": ""
-    }
-  ],
-  "Coberturas": [
-    {
-      "NomCobertura": "Assist\u00EAncia Funeral Individual (SAF)",
-      "DesCobertura": "Assist\u00EAncia Funeral Individual (SAF)",
-      "Capital": 0,
-      "Custo": 0
-    },
-    {
-      "NomCobertura": "Assist\u00EAncia Cesta B\u00E1sica",
-      "DesCobertura": "Assist\u00EAncia Cesta B\u00E1sica",
-      "Capital": 0,
-      "Custo": 0
-    }
-  ],
-  "Assistencias": [
-    { "CodAssistencia": 1, "Descricao": "Assist\u00EAncia funeral" },
-    { "CodAssistencia": 2, "Descricao": "Assist\u00EAncia Cesta B\u00E1sica" }
-  ]
-}
+  {
+    "name": "ABEVEX",
+    "undelyingAsset": "ABEV3",
+    "x": [1, 2, 3, 3, 3, 3],
+    "y": [2, 2, 2, 2, 2, 2],
+    "side": "CALL",
+    "month": 7,
+    "week": "W3",
+    "type": "scatter",
+    "mode": "lines+markers",
+    "strike": null
+  }
+]
