@@ -21,23 +21,24 @@ def get(): #generates json for graph for all months on the folders and their res
         all_data = deepMergeNestedStructure(all_data, raw_data)
     all_dates = sorted(all_dates)
 
-    for opt in sorted(all_options):
-        month = optionUtils.toMonth(opt[4])
-        dates_to_use = all_dates_per_month[month] if len(opt) > 6 else all_dates
+    for asset in sorted(all_options):
+        month = optionUtils.toMonth(asset[4])
+        dates_to_use = all_dates_per_month[month] if len(asset) > 6 else all_dates
         x = [f"{dToStr(ii)} - {i}" for ii in dates_to_use for i in ['O', 'H', 'L', 'C']]
-        option_chart_obj = chartObjInitialState(opt,x)
+        option_chart_obj = chartObjInitialState(asset,x)
         span = [
                     toTime(analysis_spans[month][0]),
                     toTime(analysis_spans[month][1])
-               ] if len(opt) > 6 else None
+               ] if len(asset) > 6 else None
         for date in dates_to_use:
             date_data = all_data[dToStr(date)]
-            option_chart_obj['strike'] = float(date_data[opt][0]) if opt in date_data and date_data[opt][0] != "0" else None
+            if asset in date_data and date_data[asset][0] != "0":
+                option_chart_obj['strike'] = float(date_data[asset][0])
             for i in range(1,5):
-                price = float(date_data[opt][i]) if opt in date_data else 0
+                price = float(date_data[asset][i]) if asset in date_data else 0
                 option_chart_obj['y'].append(price)
         data.append(option_chart_obj)
-        print(opt) if len(opt) < 7 else None
+        print(asset) if len(asset) < 7 else None
     optionUtils.exportToReact(data)
 
 def getSpanData(span, series):#returns an array, the first element contains all the dates of a span and the second is its respective asset data
@@ -67,18 +68,18 @@ def deepMergeNestedStructure(el1, el2):#merges the dict of dicts of current data
             el1[k]=v
     return el1
 
-def chartObjInitialState(opt,x):
+def chartObjInitialState(asset,x):
     return {
-            'name':opt,
-            'undelyingAsset': optionUtils.getUnderlyingAsset(opt),
-            'x':x,
-            'y':[],
-            'side': 'CALL'if len(opt) > 6 and optionUtils.isCall(opt[4]) else
-                     'PUT' if len(opt) > 6 and optionUtils.isCall(opt[4]) else None,
-            'month': optionUtils.toMonth(opt[4]) if len(opt) > 6 else None,
-            'week': opt[-2:] if len(opt) > 8 else 'W3' if len(opt) > 6 else None,
+            'name':asset,
+            'undelyingAsset': optionUtils.getUnderlyingAsset(asset),
+            'side': 'CALL'if len(asset) > 6 and optionUtils.isCall(asset[4]) else
+                     'PUT' if len(asset) > 6 and not optionUtils.isCall(asset[4]) else None,
+            'month': optionUtils.toMonth(asset[4]) if len(asset) > 6 else None,
+            'week': asset[-2:] if len(asset) > 8 else 'W3' if len(asset) > 6 else None,
             'type': 'scatter',
-            'mode': 'lines+markers'
+            'mode': 'lines+markers',
+            'x':x,
+            'y':[]
         }
 
 def toTime(date):
