@@ -4,33 +4,37 @@ from pathlib import Path
 import b3Reader
 
 def get(): #generates json for graph for all months on the folders and their respective opts
-    analysis_spans = optionUtils.getAnalysisSpans()
-    option_series = optionUtils.optionSeries()
+    data = []
+    all_data = {}
+    all_dates_per_month = {}
     all_dates = set()
     all_options = set()
-    all_data = {}
-    data = []
+    option_series = optionUtils.optionSeries()
+    analysis_spans = optionUtils.getAnalysisSpans()
     for month,span in analysis_spans.items():
         span_data = getSpanData(span, option_series[month])
-        span_dates = span_data[0]
+        all_dates_per_month[month] = span_data[0]
         raw_data = span_data[1]
         span_options = getAllPeriodOptionCodes(raw_data)
-        all_dates.update(span_dates)
+        all_dates.update(span_data[0])
         all_options.update(span_options)
         all_data = deepMergeNestedStructure(all_data, raw_data)
     all_dates = sorted(all_dates)
-    x = [f"{dToStr(ii)} - {i}" for ii in sorted(all_dates) for i in ['O','H','L','C']]
+
     for opt in sorted(all_options):
+        month = optionUtils.toMonth(opt[4])
+        dates_to_use = all_dates_per_month[month] if len(opt) > 6 else all_dates
+        x = [f"{dToStr(ii)} - {i}" for ii in dates_to_use for i in ['O', 'H', 'L', 'C']]
         option_chart_obj = chartObjInitialState(opt,x)
         span = [
-                    toTime(analysis_spans[optionUtils.toMonth(opt[4])][0]),
-                    toTime(analysis_spans[optionUtils.toMonth(opt[4])][1])
+                    toTime(analysis_spans[month][0]),
+                    toTime(analysis_spans[month][1])
                ] if len(opt) > 6 else None
-        for date in all_dates:
+        for date in dates_to_use:
             date_data = all_data[dToStr(date)]
             option_chart_obj['strike'] = float(date_data[opt][0]) if opt in date_data and date_data[opt][0] != "0" else None
             for i in range(1,5):
-                price = float(date_data[opt][i]) if opt in date_data else 0 if date >= span[0] and date < span[1] else None
+                price = float(date_data[opt][i]) if opt in date_data else 0
                 option_chart_obj['y'].append(price)
         data.append(option_chart_obj)
         print(opt) if len(opt) < 7 else None

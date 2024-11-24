@@ -4,7 +4,7 @@ import { fetchData } from '../utils/fetchData';
 
 // Define types for the data structure
 
-type ChartData = {
+export type ChartData = {
   name: string;
   undelyingAsset: string;
   x: string[];
@@ -19,7 +19,7 @@ type ChartData = {
 
 const AllOptionsChart: React.FC = () => {
   // Example data with two lines per category
-  const [data, setData] = useState<[]>([]);
+  const [data, setData] = useState<any>([]);
 
   const getData = async () => {
     const d = await fetchData();
