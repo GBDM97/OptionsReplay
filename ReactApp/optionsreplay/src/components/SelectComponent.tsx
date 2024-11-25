@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const SelectWrapper = styled.div`
   display: inline-block;
@@ -37,7 +37,7 @@ const SelectArrow = styled.div`
 
 const SelectComponent: React.FC<{
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  data: Array<string>;
+  data: Array<string | number>;
 }> = ({ onChange, data }) => (
   <SelectWrapper>
     <SelectBox onChange={onChange}>

@@ -37,6 +37,8 @@ def get(): #generates json for graph for all months on the folders and their res
             for i in range(1,5):
                 price = float(date_data[asset][i]) if asset in date_data else 0
                 option_chart_obj['y'].append(price)
+        if 'strike' in list(option_chart_obj.keys()):
+            option_chart_obj['name'] += ' ('+str(option_chart_obj['strike'])+')' 
         data.append(option_chart_obj)
         print(asset) if len(asset) < 7 else None
     optionUtils.exportToReact(data)
@@ -69,15 +71,21 @@ def deepMergeNestedStructure(el1, el2):#merges the dict of dicts of current data
     return el1
 
 def chartObjInitialState(asset,x):
+    def colorMaping(w):
+        mapping = { 'W1':'gray', 'W2':'yellow', 'W3': 'lime','W4':'cyan', 'W5':'red'}
+        return mapping.get(w,'white')
+    week = asset[-2:] if len(asset) > 8 else 'W3' if len(asset) > 6 else None
     return {
             'name':asset,
             'undelyingAsset': optionUtils.getUnderlyingAsset(asset),
             'side': 'CALL'if len(asset) > 6 and optionUtils.isCall(asset[4]) else
                      'PUT' if len(asset) > 6 and not optionUtils.isCall(asset[4]) else None,
             'month': optionUtils.toMonth(asset[4]) if len(asset) > 6 else None,
-            'week': asset[-2:] if len(asset) > 8 else 'W3' if len(asset) > 6 else None,
+            'week': week,
             'type': 'scatter',
             'mode': 'lines+markers',
+            'line' : { 'color': colorMaping(week) },
+            'hoverlabel':{'font': { 'size': 20 }},
             'x':x,
             'y':[]
         }

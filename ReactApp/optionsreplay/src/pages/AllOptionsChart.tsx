@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import { fetchData } from '../utils/fetchData';
 import SelectComponent from '../components/SelectComponent';
-
-// Define types for the data structure
+import { PlotMouseEvent, PlotRelayoutEvent } from 'plotly.js';
 
 export type ChartData = {
   name: string;
@@ -15,13 +14,37 @@ export type ChartData = {
   week: string;
   type: 'scatter' | 'line' | 'bar';
   mode: 'lines+markers' | 'lines' | 'markers';
-  strike: number | null;
+  strike: number;
+};
+
+type Span = {
+  min: number;
+  max: number;
+};
+
+type ViewRange = {
+  xrange0: undefined | string | number;
+  xrange1: undefined | string | number;
+  yrange0: undefined | string | number;
+  yrange1: undefined | string | number;
 };
 
 const AllOptionsChart: React.FC = () => {
+  let currentView: React.SetStateAction<ViewRange>;
+  const viewRangeIntialState = {
+    xrange0: '01072024 - O',
+    xrange1: '14112024 - C',
+    yrange0: '',
+    yrange1: ''
+  };
   const [data, setData] = useState<any>([]);
   const [chartData, setChartData] = useState<any>(data);
+  const [hideLines, setHideLines] = useState<Array<string>>([]);
   const [assetIndex, setAssetIndex] = useState<number>(0);
+  const [availableStrikes, setAvailableStrikes] = useState<Array<number>>([]);
+  const [strikeSpan, setStrikeSpan] = useState<Span>({ min: 0, max: 1000 });
+  const [lock, setLock] = useState<boolean>(false);
+  const [viewRange, setViewRange] = useState<ViewRange>(viewRangeIntialState);
 
   const assetList = [
     'ABEV3',
@@ -56,7 +79,6 @@ const AllOptionsChart: React.FC = () => {
     setData(d);
   };
 
-  // State for visible lines
   const [filter, setFilter] = useState<Record<string | number, boolean>>({
     W1: false,
     W2: false,
@@ -79,7 +101,6 @@ const AllOptionsChart: React.FC = () => {
     12: false
   });
 
-  // Toggle line visibility
   const filterControl = (category: string) => {
     setFilter(prevState => ({
       ...prevState,
@@ -87,21 +108,52 @@ const AllOptionsChart: React.FC = () => {
     }));
   };
 
+  const handlePlotClick = (event: PlotMouseEvent) => {
+    const { points } = event;
+
+    if (points && points.length > 0) {
+      const clickedPoint = points[0];
+      const lineName: string = clickedPoint.data.name; // Access the name of the trace
+      setHideLines(p => [...p, lineName]);
+    }
+  };
+
+  const handleReLayout = (event: Readonly<PlotRelayoutEvent>) => {
+    currentView = {
+      xrange0: event['xaxis.range[0]'],
+      xrange1: event['xaxis.range[1]'],
+      yrange0: event['yaxis.range[0]'],
+      yrange1: event['yaxis.range[1]']
+    };
+  };
+
   useEffect(() => {
     getData();
     const filtersArray: (string | number | null)[] = Object.entries(filter)
       .map(v => (v[1] ? v[0] : null))
       .filter(el => Boolean(el));
-    setChartData(
-      data.filter(
-        (el: ChartData) =>
-          el.undelyingAsset == assetList[assetIndex] &&
-          filtersArray.includes(el.week) &&
-          filtersArray.includes(String(el.month)) &&
-          filtersArray.includes(el.side)
+    const firstFilteredData = data.filter(
+      (el: ChartData) =>
+        el.undelyingAsset == assetList[assetIndex] &&
+        filtersArray.includes(el.week) &&
+        filtersArray.includes(String(el.month)) &&
+        filtersArray.includes(el.side) &&
+        !hideLines.includes(el.name)
+    );
+    setAvailableStrikes(
+      Array.from(
+        new Set(
+          firstFilteredData.map((e: ChartData) => e.strike).sort((a: number, b: number) => a - b)
+        )
       )
     );
-  }, [data, assetIndex, filter]);
+
+    const finalFilteredData = firstFilteredData.filter(
+      (e: ChartData) => e.strike >= strikeSpan.min && e.strike <= strikeSpan.max
+    );
+
+    setChartData(finalFilteredData);
+  }, [data, assetIndex, filter, strikeSpan, hideLines]);
 
   return (
     <div
@@ -129,7 +181,30 @@ const AllOptionsChart: React.FC = () => {
             {category}
           </label>
         ))}
+        <label style={{ color: 'white', marginRight: '20px' }}>
+          <input
+            type="checkbox"
+            checked={lock}
+            onChange={() => {
+              setLock(p => !p);
+              setViewRange(currentView ?? viewRange);
+            }}
+          />
+          Lock
+        </label>
         <SelectComponent data={assetList} onChange={e => setAssetIndex(Number(e.target.value))} />
+        <SelectComponent
+          data={availableStrikes}
+          onChange={e =>
+            setStrikeSpan(p => ({ ...p, min: Number(availableStrikes[Number(e.target.value)]) }))
+          }
+        />
+        <SelectComponent
+          data={availableStrikes}
+          onChange={e =>
+            setStrikeSpan(p => ({ ...p, max: Number(availableStrikes[Number(e.target.value)]) }))
+          }
+        />
       </div>
       <Plot
         data={chartData}
@@ -140,18 +215,31 @@ const AllOptionsChart: React.FC = () => {
           xaxis: {
             title: 'Date OHLC',
             showgrid: false,
-            range: ['01072024 - O', '14112024 - C']
+            range: [viewRange.xrange0, viewRange.xrange1],
+            fixedrange: lock
           },
-          yaxis: { title: 'Price', showgrid: false },
+          yaxis: {
+            title: 'Price',
+            showgrid: false,
+            range: [viewRange.yrange0, viewRange.yrange1],
+            fixedrange: lock
+          },
           autosize: true,
           margin: {
-            l: 20, // Left margin
-            r: 0, // Right margin
-            t: 0, // Top margin
-            b: 20 // Bottom margin
+            l: 20,
+            r: 0,
+            t: 0,
+            b: 20
           }
         }}
-        style={{ width: '100%', height: '100%' }} // Expand to full width and height
+        config={{
+          scrollZoom: !lock, // Disable scroll zoom
+          displayModeBar: !lock, // Hide mode bar
+          showAxisDragHandles: !lock
+        }}
+        style={{ width: '100%', height: '100%' }}
+        onClick={handlePlotClick}
+        onRelayout={handleReLayout}
       />
     </div>
   );
