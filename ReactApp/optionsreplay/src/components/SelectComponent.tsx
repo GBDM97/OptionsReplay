@@ -38,9 +38,10 @@ const SelectArrow = styled.div`
 const SelectComponent: React.FC<{
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   data: Array<string | number>;
-}> = ({ onChange, data }) => (
+  value: string | number;
+}> = ({ onChange, data, value }) => (
   <SelectWrapper>
-    <SelectBox onChange={onChange}>
+    <SelectBox onChange={onChange} value={value}>
       {data.map((e, i) => (
         <option value={i}>{e}</option>
       ))}

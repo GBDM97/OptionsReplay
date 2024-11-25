@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Plot from 'react-plotly.js';
 import { fetchData } from '../utils/fetchData';
 import SelectComponent from '../components/SelectComponent';
@@ -22,6 +22,10 @@ type Span = {
   max: number;
 };
 
+type SpanRef = Span & {
+  available: number[];
+};
+
 type ViewRange = {
   xrange0: undefined | string | number;
   xrange1: undefined | string | number;
@@ -43,6 +47,7 @@ const AllOptionsChart: React.FC = () => {
   const [assetIndex, setAssetIndex] = useState<number>(0);
   const [availableStrikes, setAvailableStrikes] = useState<Array<number>>([]);
   const [strikeSpan, setStrikeSpan] = useState<Span>({ min: 0, max: 1000 });
+  const strikeRef = useRef<SpanRef>({ min: 0, max: 1000, available: [] });
   const [lock, setLock] = useState<boolean>(false);
   const [viewRange, setViewRange] = useState<ViewRange>(viewRangeIntialState);
 
@@ -127,6 +132,47 @@ const AllOptionsChart: React.FC = () => {
     };
   };
 
+  const handleKeyboardEvent = (event: KeyboardEvent) => {
+    if (event.key === 'w') {
+      if (
+        strikeRef.current.available.indexOf(strikeRef.current.min) == 0 ||
+        strikeRef.current.min == 0
+      )
+        return;
+      setStrikeSpan(p => ({
+        ...p,
+        max: strikeRef.current.available[
+          strikeRef.current.available.indexOf(strikeRef.current.max) - 1
+        ],
+        min: strikeRef.current.available[
+          strikeRef.current.available.indexOf(strikeRef.current.min) - 1
+        ]
+      }));
+    } else if (event.key === 's') {
+      if (
+        strikeRef.current.available.indexOf(strikeRef.current.max) ==
+        strikeRef.current.available.length - 1
+      )
+        return;
+      setStrikeSpan(p => ({
+        ...p,
+        max: strikeRef.current.available[
+          strikeRef.current.available.indexOf(strikeRef.current.max) + 1
+        ],
+        min: strikeRef.current.available[
+          strikeRef.current.min == 0
+            ? 1
+            : strikeRef.current.available.indexOf(strikeRef.current.min) + 1
+        ]
+      }));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyboardEvent);
+    return () => window.addEventListener('keydown', handleKeyboardEvent);
+  }, []);
+
   useEffect(() => {
     getData();
     const filtersArray: (string | number | null)[] = Object.entries(filter)
@@ -147,12 +193,11 @@ const AllOptionsChart: React.FC = () => {
         )
       )
     );
-
     const finalFilteredData = firstFilteredData.filter(
       (e: ChartData) => e.strike >= strikeSpan.min && e.strike <= strikeSpan.max
     );
-
     setChartData(finalFilteredData);
+    strikeRef.current = { ...strikeSpan, available: availableStrikes };
   }, [data, assetIndex, filter, strikeSpan, hideLines]);
 
   return (
@@ -192,14 +237,20 @@ const AllOptionsChart: React.FC = () => {
           />
           Lock
         </label>
-        <SelectComponent data={assetList} onChange={e => setAssetIndex(Number(e.target.value))} />
         <SelectComponent
+          value={assetIndex}
+          data={assetList}
+          onChange={e => setAssetIndex(Number(e.target.value))}
+        />
+        <SelectComponent
+          value={availableStrikes.indexOf(strikeSpan.min)}
           data={availableStrikes}
           onChange={e =>
             setStrikeSpan(p => ({ ...p, min: Number(availableStrikes[Number(e.target.value)]) }))
           }
         />
         <SelectComponent
+          value={availableStrikes.indexOf(strikeSpan.max)}
           data={availableStrikes}
           onChange={e =>
             setStrikeSpan(p => ({ ...p, max: Number(availableStrikes[Number(e.target.value)]) }))
