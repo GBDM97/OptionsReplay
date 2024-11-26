@@ -118,7 +118,7 @@ const AllOptionsChart: React.FC = () => {
 
     if (points && points.length > 0) {
       const clickedPoint = points[0];
-      const lineName: string = clickedPoint.data.name; // Access the name of the trace
+      const lineName: string = clickedPoint.data.name;
       setHideLines(p => [...p, lineName]);
     }
   };
@@ -284,8 +284,8 @@ const AllOptionsChart: React.FC = () => {
           }
         }}
         config={{
-          scrollZoom: !lock, // Disable scroll zoom
-          displayModeBar: !lock, // Hide mode bar
+          scrollZoom: !lock,
+          displayModeBar: !lock,
           showAxisDragHandles: !lock
         }}
         style={{ width: '100%', height: '100%' }}
